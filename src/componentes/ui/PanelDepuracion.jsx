@@ -60,7 +60,7 @@ export default function PanelDepuracion() {
   const boton = "rounded-lg bg-neutral-800 px-3 py-1 text-sm text-white hover:bg-neutral-700";
 
   return (
-    <div className="absolute right-6 top-6 w-72 rounded-2xl bg-white/85 p-5 text-neutral-800 shadow-xl backdrop-blur">
+    <div className="absolute right-6 top-6 max-h-[calc(100%-3rem)] w-72 overflow-y-auto rounded-2xl bg-white/85 p-5 text-neutral-800 shadow-xl backdrop-blur">
       <h2 className="font-semibold">Depuración (Fase 1)</h2>
 
       <div className="mt-3 flex gap-2">

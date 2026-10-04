@@ -76,6 +76,12 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `obtenerDisposicion(p)` cachea por objeto de parámetros: úsala en vez de `crearDisposicion` en componentes (la comparten `Polipasto` y `Camaras`).
 - Giro de poleas: `anguloPolea = giro·k·y/r_polea` (`giro` = +1 móvil, −1 fija).
 
+## Gráficas (`src/graficas/series.js`, `src/componentes/ui/`)
+
+- `series.js` (sin DOM, con pruebas): `VARIABLES` fija un color por variable (paleta categórica validada para daltonismo; el mismo color en todas las pestañas), `PESTANAS`, marcas de eventos (si la carga no despega solo se marca t_off), t → índice y zoom del tiempo.
+- `GraficaUPlot` crea la gráfica una vez; los datos cambian con `setData` y el zoom con `setScale`. El cursor de reproducción, los puntos y los valores de la leyenda se mueven en el DOM con `usarGemelo.subscribe` (sin renders por cuadro). Arrastrar llama `irA` y pausa; Shift + arrastrar o la rueda hacen zoom (`onZoom`, compartido por las gráficas apiladas en `Graficas`).
+- El panel de gráficas está debajo de la escena (`App` en columna): al abrirlo, la escena se encoge en vez de quedar tapada.
+
 ## Operario (`src/geometria/operario.js`)
 
 - Funciones puras en el marco local del operario (+z hacia la cadena, +x a su izquierda); `ubicacionOperario(disp)` lo coloca del lado +x del tramo libre mirando a −x, y `aMundo` convierte al mundo. El montón está en z = −0.35 para no quedar bajo sus pies.

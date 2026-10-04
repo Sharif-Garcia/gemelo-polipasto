@@ -18,7 +18,7 @@ export default function Escena() {
       <Camaras />
       <Polipasto />
       <Efectos />
-      {import.meta.env.DEV && <Stats className="left-auto! right-0! top-auto! bottom-0!" />}
+      {import.meta.env.DEV && <Stats />}
     </Canvas>
   );
 }
