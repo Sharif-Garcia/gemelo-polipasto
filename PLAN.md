@@ -204,7 +204,7 @@ en el tiempo y marcas de despegue, y máxima y aterrizaje. Estilo limpio y legib
 
 ## Fase 6. Interfaz completa
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** la interfaz definitiva. Cumple los requisitos de la guía: "controles visuales tipo deslizador o campos de entrada numérica directa para modificar parámetros físicos o de excitación; el mecanismo y las curvas deben reaccionar inmediatamente a los cambios sin reiniciar la aplicación" y "despliegue en pantalla de los valores numéricos instantáneos de las variables clave".
 
@@ -255,28 +255,6 @@ descargar el CSV del gemelo y botón para capturar la escena en PNG.
 
 ---
 
-## Fase 9. Pulido y publicación
-
-- [ ] Completada
-
-**Objetivo:** dejarlo listo para la exposición y para el enlace de la memoria.
-
-**Detalles:**
-- Pantalla de carga con el título del proyecto.
-- Revisión de rendimiento (memoización, instancias, sombras) y prueba en celular.
-- `README.md` con descripción, capturas, instrucciones y créditos (incluido el modelo de Mixamo).
-- Subir a GitHub y publicar en Vercel; copiar el enlace en la sección 4.2.3 de la memoria.
-
-**Prompt:**
-
-```
-Fase 9 de PLAN.md. Revisa rendimiento y errores, agrega una pantalla de carga con el título del
-proyecto, mejora la adaptación a pantallas pequeñas, escribe README.md en español y guíame paso a
-paso para subir el proyecto a GitHub y publicarlo en Vercel.
-```
-
----
-
 ## Fase 7. Modo análisis
 
 - [ ] Completada
@@ -306,12 +284,34 @@ colores, cotas dinámicas y un cuadro con la ecuación de movimiento evaluada en
 
 ---
 
+## Fase 9. Pulido y publicación
+
+- [ ] Completada
+
+**Objetivo:** dejarlo listo para la exposición y para el enlace de la memoria.
+
+**Detalles:**
+- Pantalla de carga con el título del proyecto.
+- Revisión de rendimiento (memoización, instancias, sombras) y prueba en celular.
+- `README.md` con descripción, capturas, instrucciones y créditos (incluido el modelo de Mixamo).
+- Subir a GitHub y publicar en Vercel; copiar el enlace en la sección 4.2.3 de la memoria.
+
+**Prompt:**
+
+```
+Fase 9 de PLAN.md. Revisa rendimiento y errores, agrega una pantalla de carga con el título del
+proyecto, mejora la adaptación a pantallas pequeñas, escribe README.md en español y guíame paso a
+paso para subir el proyecto a GitHub y publicarlo en Vercel.
+```
+
+---
+
 ## Orden de trabajo
 
-Después de la Fase 6 sigue la Fase 8 (validación con el CSV de Simulink), luego la Fase 9 (pulido y publicación) y la Fase 7 (modo análisis) queda al final. Las secciones de este archivo siguen ese orden.
+Después de la Fase 6 sigue la Fase 8 (validación con el CSV de Simulink), luego la Fase 7 (modo análisis) y al final la Fase 9 (pulido y publicación), con el modo análisis ya hecho. Las secciones de este archivo siguen ese orden.
 
 ## Orden de prioridad si el tiempo es corto
 
 1. Fases 0, 1, 3, 5 y 6: cumplen todos los requisitos de la rúbrica (animación sincronizada, gráfica con cursor, valores en vivo y sliders).
 2. Fases 2 y 4: elevan la calidad visual.
-3. Fases 8, 9 y 7 (en ese orden): suman puntos en la validación y en la exposición.
+3. Fases 8, 7 y 9 (en ese orden): suman puntos en la validación y en la exposición; la publicación va al final.
