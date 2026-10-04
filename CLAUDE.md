@@ -98,7 +98,7 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `csv.js`: `leerCSV` valida encabezados con unidades (t, y, ydot, ydd obligatorios; acepta otro orden, mayúsculas y `;` con coma decimal) y da errores con fila y columna; `alinearConGemelo` interpola si la malla de tiempo difiere. `escribirCSV` exporta con el formato exacto de MATLAB (`%.15g`, exponente de dos dígitos): `Fisica.aCSV` no se usa para descargar porque escribe todos los decimales de JavaScript (p. ej. `0.009000000000000001`).
 - `validacion.js`: RMS sobre todas las muestras y error máximo excluyendo ±5 ms alrededor de t_on, t_off, despegues y aterrizajes; tabla de eventos con el mismo criterio para ambas series. "Validado" si el error máximo de y < 1 mm, los eventos difieren < 2 ms y los parámetros son los por defecto.
 - Las curvas de Simulink se guardan en el estado (`simulink`) ya alineadas con `sim.r.t` y se dibujan punteadas sobre las del gemelo en todas las pestañas.
-- El lienzo usa `preserveDrawingBuffer` para "Capturar escena" (PNG del área libre, sin paneles).
+- "Capturar escena" (`Capturador.jsx`, dentro del lienzo) genera un PNG de 1920×1080 con la misma cámara en 16:9: cambia el tamaño del búfer, dibuja con el `EffectComposer` (ref desde `Escena`), lee el lienzo (`preserveDrawingBuffer`) y restaura tamaño y `setViewOffset` (`aplicarCuadroCamara`) en el mismo paso.
 
 ## Operario (`src/geometria/operario.js`)
 

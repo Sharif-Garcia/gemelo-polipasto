@@ -5,7 +5,7 @@ import { usarGemelo } from "../../estado/usarGemelo.js";
 import { PARAMETROS_DEFECTO } from "../../estado/escenarios.js";
 import { validar, VENTANA } from "../../utilidades/validacion.js";
 import { escribirCSV } from "../../utilidades/csv.js";
-import { descargarTexto, capturarEscena } from "../../utilidades/descargas.js";
+import { descargarTexto } from "../../utilidades/descargas.js";
 import Icono from "./Icono.jsx";
 
 const RUTA_PROYECTO = `${import.meta.env.BASE_URL}datos/datos_mecanismo.csv`;
@@ -179,15 +179,8 @@ export default function PanelValidacion() {
         <button className={boton} onClick={() => descargarTexto(escribirCSV(sim), "datos_gemelo.csv")}>
           Descargar CSV del gemelo
         </button>
-        <button
-          className={boton}
-          onClick={() => {
-            const lienzo = document.querySelector("main canvas");
-            const { t, paneles } = usarGemelo.getState();
-            if (lienzo) capturarEscena(lienzo, paneles, `polipasto_t${t.toFixed(3)}s.png`);
-          }}
-        >
-          Capturar escena
+        <button className={boton} onClick={() => usarGemelo.getState().capturarEscena()} title="PNG de 1920 × 1080 con la cámara actual">
+          Capturar escena (1920 × 1080)
         </button>
       </div>
     </div>

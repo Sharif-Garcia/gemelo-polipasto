@@ -53,6 +53,10 @@ export const usarGemelo = create((set, get) => ({
   },
   quitarSimulink: () => set({ simulink: null, erroresSimulink: null }),
 
+  /* Captura PNG de la escena en 1920x1080 (la atiende Capturador.jsx) */
+  solicitudCaptura: 0,
+  capturarEscena: () => set((s) => ({ solicitudCaptura: s.solicitudCaptura + 1 })),
+
   /* Interfaz: paneles laterales y medidor de FPS */
   paneles: { parametros: true, valores: true },
   mostrarFPS: false,

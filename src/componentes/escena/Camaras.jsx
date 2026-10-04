@@ -8,6 +8,7 @@ import { usarGemelo } from "../../estado/usarGemelo.js";
 import { obtenerDisposicion, alturaBloqueMovil } from "../../geometria/disposicion.js";
 import { buscarVista, encuadreVista } from "./vistas.js";
 import { areaVisible } from "../ui/medidas.js";
+import { aplicarCuadroCamara } from "./cuadroCamara.js";
 
 // Zona donde puede moverse el punto al que mira la camara [m]
 const LIMITES_OBJETIVO = new Box3(new Vector3(-4, 0.2, -2.5), new Vector3(4, 4.5, 4));
@@ -50,11 +51,7 @@ export default function Camaras() {
   // solo se corrige este desplazamiento: el giro y el zoom del usuario se conservan.
   // La camara es "manual" (Escena.jsx) para que R3F no sobrescriba el aspecto.
   useLayoutEffect(() => {
-    const { camera } = get();
-    const area = areaVisible(ancho, alto, paneles);
-    camera.aspect = area.ancho / area.alto;
-    camera.setViewOffset(area.ancho, area.alto, -area.x, -area.y, ancho, alto);
-    camera.updateProjectionMatrix();
+    aplicarCuadroCamara(get().camera, ancho, alto, paneles);
   }, [ancho, alto, paneles, get]);
 
   // Reencuadre completo solo al elegir una vista (sin animacion la primera vez)
