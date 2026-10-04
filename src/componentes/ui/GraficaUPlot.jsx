@@ -71,7 +71,11 @@ export default function GraficaUPlot({
       width: contenedor.current.clientWidth,
       height: ultimos.current.alto,
       legend: { show: false },
-      scales: { x: { time: false } },
+      scales: {
+        x: { time: false },
+        // Una serie constante (p. ej. y = 0 sin despegue) se centra con ±1 en vez de 0 a 100
+        y: { range: (u, min, max) => (min === max ? [min - 1, max + 1] : uPlot.rangeNum(min, max, 0.1, true)) },
+      },
       cursor: { y: false, points: { show: false }, drag: { x: false, y: false, setScale: false } },
       axes: [
         {

@@ -1,12 +1,14 @@
 /* Lienzo 3D: estudio, camaras, efectos y contenido de la escena. */
 import { Canvas } from "@react-three/fiber";
 import { Stats } from "@react-three/drei";
+import { usarGemelo } from "../../estado/usarGemelo.js";
 import Estudio from "./Estudio.jsx";
 import Camaras from "./Camaras.jsx";
 import Efectos from "./Efectos.jsx";
 import Polipasto from "./Polipasto.jsx";
 
 export default function Escena() {
+  const mostrarFPS = usarGemelo((s) => s.mostrarFPS);   // tecla F
   return (
     <Canvas
       shadows="percentage"
@@ -18,7 +20,7 @@ export default function Escena() {
       <Camaras />
       <Polipasto />
       <Efectos />
-      {import.meta.env.DEV && <Stats />}
+      {mostrarFPS && <Stats />}
     </Canvas>
   );
 }

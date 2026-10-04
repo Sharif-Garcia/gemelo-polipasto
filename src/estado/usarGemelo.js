@@ -5,9 +5,11 @@
 import { create } from "zustand";
 import { Fisica } from "../fisica/fisica.js";
 import { PARAMETROS_DEFECTO, parametrosDeEscenario } from "./escenarios.js";
+import { acotarValor, ajustarDependientes } from "./parametros.js";
 
 export const VELOCIDADES = [0.25, 0.5, 1, 2];
 export const RETARDO_RECALCULO_MS = 60;   // debounce de los sliders
+export const PASO_FLECHAS = 0.01;         // avance con las flechas en pausa [s]
 
 let temporizadorRecalculo = null;
 
@@ -35,9 +37,19 @@ export const usarGemelo = create((set, get) => ({
   solicitudVista: 0,
   setVista: (vista) => set((s) => ({ vista, solicitudVista: s.solicitudVista + 1 })),
 
-  // Cambia un parametro al instante y recalcula con un retardo corto.
+  /* Interfaz: paneles laterales y medidor de FPS */
+  paneles: { parametros: true, valores: true },
+  mostrarFPS: false,
+  alternarPanel: (nombre) => set((s) => ({ paneles: { ...s.paneles, [nombre]: !s.paneles[nombre] } })),
+  alternarFPS: () => set((s) => ({ mostrarFPS: !s.mostrarFPS })),
+
+  // Cambia un parametro al instante (acotado a su rango y paso, corrigiendo los que
+  // dependen de el), marca el escenario como personalizado y recalcula con retardo.
   setParametro: (nombre, valor) => {
-    set((s) => ({ parametros: { ...s.parametros, [nombre]: valor }, escenario: null }));
+    set((s) => {
+      const acotado = acotarValor(nombre, valor, s.parametros);
+      return { parametros: ajustarDependientes({ ...s.parametros, [nombre]: acotado }), escenario: null };
+    });
     clearTimeout(temporizadorRecalculo);
     temporizadorRecalculo = setTimeout(() => get().recalcular(), RETARDO_RECALCULO_MS);
   },
@@ -48,6 +60,9 @@ export const usarGemelo = create((set, get) => ({
     const nuevo = simularConTiempo(get().parametros);
     set({ ...nuevo, indice: Fisica.indice(nuevo.sim, get().t) });
   },
+
+  restablecerParametro: (nombre) => get().setParametro(nombre, PARAMETROS_DEFECTO[nombre]),
+  restablecerTodo: () => get().aplicarEscenario("estandar"),
 
   aplicarEscenario: (id) => {
     set({ parametros: parametrosDeEscenario(id), escenario: id });
@@ -64,6 +79,11 @@ export const usarGemelo = create((set, get) => ({
   reiniciar: () => {
     set({ reproduciendo: false });
     get().irA(0);
+  },
+  alternarReproduccion: () => (get().reproduciendo ? get().pausa() : get().play()),
+  // Avance cuadro a cuadro (flechas): solo en pausa
+  pasoManual: (sentido) => {
+    if (!get().reproduciendo) get().irA(get().t + sentido * PASO_FLECHAS);
   },
   setVelocidad: (velocidad) => set({ velocidad }),
   setBucle: (bucle) => set({ bucle }),

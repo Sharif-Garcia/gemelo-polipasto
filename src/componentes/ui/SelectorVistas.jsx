@@ -1,27 +1,40 @@
-/* Botones de vistas predefinidas de la camara. */
+/* Barra de vistas de camara, centrada sobre el area libre de la escena (teclas 1 a 6). */
 import { usarGemelo } from "../../estado/usarGemelo.js";
 import { VISTAS } from "../escena/vistas.js";
+import { MEDIDAS, bordesLaterales } from "./medidas.js";
 
 export default function SelectorVistas() {
   const vista = usarGemelo((s) => s.vista);
   const setVista = usarGemelo((s) => s.setVista);
+  const paneles = usarGemelo((s) => s.paneles);
+  const { izquierda, derecha } = bordesLaterales(paneles);
 
   return (
-    <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-1 rounded-2xl bg-white/85 p-1.5 shadow-xl backdrop-blur">
-      {VISTAS.map((v) => (
-        <button
-          key={v.id}
-          onClick={() => setVista(v.id)}
-          className={
-            "rounded-xl px-3 py-1.5 text-sm transition-colors " +
-            (v.id === vista
-              ? "bg-neutral-800 text-white"
-              : "text-neutral-700 hover:bg-neutral-200")
-          }
-        >
-          {v.nombre}
-        </button>
-      ))}
+    <div
+      className="pointer-events-none absolute flex justify-center"
+      style={{ left: izquierda, right: derecha, top: MEDIDAS.margen }}
+    >
+      <nav
+        className="vidrio pointer-events-auto flex gap-0.5 p-1"
+        style={{ height: MEDIDAS.altoVistas }}
+        aria-label="Vistas de cámara"
+      >
+        {VISTAS.map((v, i) => (
+          <button
+            key={v.id}
+            onClick={() => setVista(v.id)}
+            aria-pressed={v.id === vista}
+            title={`${v.nombre} (tecla ${i + 1})`}
+            className={
+              "flex items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 text-[13px] transition-colors " +
+              (v.id === vista ? "bg-neutral-900 text-white" : "text-neutral-700 hover:bg-neutral-900/5")
+            }
+          >
+            <kbd className={"font-mono text-[10px] " + (v.id === vista ? "text-white/60" : "text-neutral-400")}>{i + 1}</kbd>
+            {v.nombre}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

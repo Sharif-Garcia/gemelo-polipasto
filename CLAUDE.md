@@ -63,8 +63,8 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `Escena.jsx` monta el `Canvas`; `Estudio` (ciclorama, luces, sombras), `Camaras` (CameraControls) y `Efectos` (postprocesado) son fijos, y el mecanismo se agrega como hijo.
 - Sombras con `shadows="percentage"` + `shadow-radius`: en three r186 `PCFSoftShadowMap` (lo que usa `shadows={true}`) ya no existe y avisa en consola.
 - El `EffectComposer` desactiva el tone mapping del renderer; por eso `Efectos.jsx` termina con `ToneMapping` (ACES) y `SMAA` (`multisampling={0}`).
-- Vistas de cámara en `src/componentes/escena/vistas.js`: cada vista tiene una dirección y una caja (pórtico, bloque fijo o móvil, operario); `encuadreVista` calcula la distancia exacta en perspectiva para el fov y la proporción del área útil del lienzo (pruebas en `vistas.test.js`). `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar. Al cambiar el tamaño del lienzo (ventana o panel de gráficas) se reencuadra con transición.
-- La cámara es `manual` (R3F no toca su aspecto): `Camaras` aplica `setViewOffset` para que el cuadro de la cámara sea el área sobre la barra de vistas (`FRANJA_INFERIOR`) mientras el lienzo sigue dibujando debajo de ella.
+- Vistas de cámara en `src/componentes/escena/vistas.js`: cada vista tiene una dirección y una caja (pórtico, bloque fijo o móvil, operario); `encuadreVista` calcula la distancia exacta en perspectiva para el fov y la proporción del área útil del lienzo (pruebas en `vistas.test.js`). `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar. El reencuadre completo ocurre solo al elegir una vista (botón o teclas 1 a 6): al cambiar el tamaño del lienzo o plegar un panel se conservan el giro y el zoom del usuario.
+- La cámara es `manual` (R3F no toca su aspecto): `Camaras` aplica `setViewOffset` para que el cuadro de la cámara sea el área libre entre paneles y barras (`areaVisible` en `src/componentes/ui/medidas.js`), mientras el lienzo sigue dibujando debajo de ellos. Si cambian las medidas de la interfaz, se cambian ahí.
 - "Poleas móviles" sigue al bloque desplazando en Δy el objetivo interno de camera-controls (`_target`/`_targetEnd`) en un `useFrame` de prioridad −2, lo que conserva el giro y el zoom del usuario.
 - `Text` de drei usa la fuente local `@fontsource/inter` (.woff; troika no lee .woff2) dentro de `Suspense`: sin ella, la carga de la fuente desde el CDN suspende toda la escena.
 
@@ -83,6 +83,14 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `series.js` (sin DOM, con pruebas): `VARIABLES` fija un color por variable (paleta categórica validada para daltonismo; el mismo color en todas las pestañas), `PESTANAS`, marcas de eventos (si la carga no despega solo se marca t_off), t → índice y zoom del tiempo.
 - `GraficaUPlot` crea la gráfica una vez; los datos cambian con `setData` y el zoom con `setScale`. El cursor de reproducción, los puntos y los valores de la leyenda se mueven en el DOM con `usarGemelo.subscribe` (sin renders por cuadro). Arrastrar llama `irA` y pausa; Shift + arrastrar o la rueda hacen zoom (`onZoom`, compartido por las gráficas apiladas en `Graficas`).
 - El panel de gráficas está debajo de la escena (`App` en columna): al abrirlo, la escena se encoge en vez de quedar tapada.
+
+## Interfaz (`src/estado/parametros.js`, `src/componentes/ui/`)
+
+- `parametros.js` (sin React, con pruebas) define grupos, rangos, pasos, formato y dependencias de los parámetros editables: L1 depende de D0 (la mano debe quedar al alcance del operario, `alturaAgarreMaxima`) y t_off de t_on. `setParametro` acota al rango y al paso, corrige los dependientes y pone el escenario en `null` ("Personalizado").
+- Disposición en `App`: escena con paneles de vidrio encima (parámetros a la izquierda, valores en vivo a la derecha, vistas arriba, reproducción abajo) y gráficas debajo. Paneles plegables (`paneles` en el estado); las posiciones salen de `medidas.js`.
+- Valores en vivo y línea de tiempo se actualizan en el DOM con `usarGemelo.subscribe`. Los derivados se calculan con `Fisica.derivados` sobre los parámetros actuales (sin esperar el recálculo).
+- Atajos en `src/hooks/useAtajos.js` (espacio, R, 1-6, flechas, F); no actúan en campos de texto ni selectores, y en un slider solo las flechas son del slider. El medidor de FPS se muestra solo con F.
+- Estilos base en `src/index.css`: fuente Inter (`@fontsource/inter`), utilidad `vidrio` para los paneles.
 
 ## Operario (`src/geometria/operario.js`)
 

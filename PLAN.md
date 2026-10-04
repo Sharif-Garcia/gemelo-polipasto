@@ -206,61 +206,23 @@ en el tiempo y marcas de despegue, y máxima y aterrizaje. Estilo limpio y legib
 
 - [ ] Completada
 
-**Objetivo:** el panel de control profesional.
+**Objetivo:** la interfaz definitiva. Cumple los requisitos de la guía: "controles visuales tipo deslizador o campos de entrada numérica directa para modificar parámetros físicos o de excitación; el mecanismo y las curvas deben reaccionar inmediatamente a los cambios sin reiniciar la aplicación" y "despliegue en pantalla de los valores numéricos instantáneos de las variables clave".
 
-**Archivos:** `src/componentes/ui/PanelParametros.jsx`, `ValoresEnVivo.jsx`, `BarraReproduccion.jsx`, `SelectorEscenarios.jsx`, `Deslizador.jsx`, `Layout.jsx`.
-
-**Detalles:**
-- Disposición: escena 3D al centro, panel de parámetros a la izquierda, valores en vivo a la derecha, gráficas abajo (plegables).
-- Sliders agrupados: Carga (M, m_b), Polipasto (n, r_polea, J_polea), Cadena (m_r, D0, L1), Operario (F0, t_on, t_off), Fricción (mu, b).
-- Cada slider con su valor, unidad y botón para restablecer.
-- Valores en vivo: t, y, ydot, ydd, u, T, s, N y los derivados M_eq, m_p_eq, m_r_eff, F_min.
-- Aviso visible cuando F0 < F_min ("la carga no despega").
-- Barra de reproducción: Play/Pausa, Reiniciar, línea de tiempo arrastrable, velocidad y bucle.
-- Atajos de teclado: espacio (play/pausa), R (reiniciar), 1 a 5 (vistas de cámara).
-
-**Criterios:**
-- Mover cualquier slider recalcula sin reiniciar la aplicación.
-- La interfaz se ve bien en 1366 x 768 y en pantallas grandes.
-
-**Prompt:**
-
-```
-Fase 6 de PLAN.md. Construye la interfaz completa con Tailwind siguiendo la disposición del plan:
-panel de parámetros agrupado con sliders reutilizables (valor, unidad, restablecer), valores en
-vivo, selector de escenarios, barra de reproducción con línea de tiempo arrastrable, velocidad y
-bucle, aviso cuando F0 < F_min y atajos de teclado. Diseño moderno tipo panel de vidrio
-(fondo blanco translúcido, bordes redondeados, sombras suaves) y tipografía legible.
-```
-
----
-
-## Fase 7. Modo análisis
-
-- [ ] Completada
-
-**Objetivo:** la vista técnica que conecta el 3D con la física de la memoria.
-
-**Archivos:** `src/componentes/escena/ModoAnalisis.jsx`, `VectorFuerza.jsx`, `Etiqueta3D.jsx`.
+**Archivos:** `src/estado/parametros.js` (rangos, pasos, dependencias), `src/componentes/ui/` (`PanelParametros`, `GrupoParametros`, `Deslizador`, `SelectorEscenarios`, `ValoresEnVivo`, `FilaValor`, `BarraReproduccion`, `SelectorVistas`, `AvisoFuerza`, `PanelLateral`, `medidas.js`), `src/hooks/useAtajos.js`.
 
 **Detalles:**
-- Botón para alternar entre "Estudio" y "Análisis".
-- En análisis: materiales semitransparentes, flechas de fuerza sobre el bloque móvil (n·T, M_t·g, fricción, N) con longitud proporcional a su valor, etiquetas 3D con las variables (y, s, T, n, D0).
-- Ramales coloreados según su tensión `T_j` (fórmula en CLAUDE.md) con una barra de colores.
-- Cotas dinámicas de y y de s.
-- Cuadro con la ecuación de movimiento y los valores numéricos del instante actual.
+- Disposición: parámetros a la izquierda, valores en vivo a la derecha, escena al centro, barra de vistas arriba, barra de reproducción abajo y gráficas debajo. Paneles laterales plegables; la cámara encuadra el área libre entre ellos (setViewOffset).
+- Parámetros agrupados (Carga, Polipasto, Cadena, Operario, Fricción) con slider y campo numérico sincronizados, unidad, valor por defecto y botón de restablecer. D0 y L1 con rangos que respetan el pórtico y el alcance del operario; t_off siempre mayor que t_on.
+- Selector de escenarios ("Personalizado" al mover un parámetro) y botón para restablecer todo.
+- Valores en vivo: t, y, ydot, ydd, u, T, s, sdot, N y derivados M_eq, m_p_eq, m_r_eff, F_min y ventaja mecánica n, con formato fijo.
+- Aviso cuando F0 < F_min: "La fuerza no alcanza para levantar la carga (F_min = ... N)".
+- Barra de reproducción: Play/Pausa, Reiniciar, línea de tiempo arrastrable, velocidad (0.25x a 2x) y bucle.
+- Atajos: espacio (play/pausa), R (reiniciar), 1 a 6 (vistas), flechas (±0.01 s en pausa), F (medidor de FPS). No se activan al escribir en un campo.
+- Estilo: paneles de vidrio, Inter, números en monoespaciada.
 
 **Criterios:**
-- Las flechas cambian de tamaño en vivo y la flecha N solo aparece cuando la carga está en el piso.
-
-**Prompt:**
-
-```
-Fase 7 de PLAN.md. Agrega el modo análisis: alternador Estudio/Análisis, materiales
-semitransparentes, flechas de fuerza proporcionales sobre el bloque móvil (n*T, M_t*g, fricción
-seca y viscosa, N), etiquetas 3D de y, s, T, n y D0, ramales coloreados por T_j con barra de
-colores, cotas dinámicas y un cuadro con la ecuación de movimiento evaluada en el instante actual.
-```
+- Mover cualquier slider o escribir un valor recalcula sin reiniciar la aplicación.
+- La interfaz se ve bien en 1366 x 768 y en 1920 x 1080.
 
 ---
 
@@ -315,8 +277,41 @@ paso para subir el proyecto a GitHub y publicarlo en Vercel.
 
 ---
 
+## Fase 7. Modo análisis
+
+- [ ] Completada
+
+**Objetivo:** la vista técnica que conecta el 3D con la física de la memoria.
+
+**Archivos:** `src/componentes/escena/ModoAnalisis.jsx`, `VectorFuerza.jsx`, `Etiqueta3D.jsx`.
+
+**Detalles:**
+- Botón para alternar entre "Estudio" y "Análisis".
+- En análisis: materiales semitransparentes, flechas de fuerza sobre el bloque móvil (n·T, M_t·g, fricción, N) con longitud proporcional a su valor, etiquetas 3D con las variables (y, s, T, n, D0).
+- Ramales coloreados según su tensión `T_j` (fórmula en CLAUDE.md) con una barra de colores.
+- Cotas dinámicas de y y de s.
+- Cuadro con la ecuación de movimiento y los valores numéricos del instante actual.
+
+**Criterios:**
+- Las flechas cambian de tamaño en vivo y la flecha N solo aparece cuando la carga está en el piso.
+
+**Prompt:**
+
+```
+Fase 7 de PLAN.md. Agrega el modo análisis: alternador Estudio/Análisis, materiales
+semitransparentes, flechas de fuerza proporcionales sobre el bloque móvil (n*T, M_t*g, fricción
+seca y viscosa, N), etiquetas 3D de y, s, T, n y D0, ramales coloreados por T_j con barra de
+colores, cotas dinámicas y un cuadro con la ecuación de movimiento evaluada en el instante actual.
+```
+
+---
+
+## Orden de trabajo
+
+Después de la Fase 6 sigue la Fase 8 (validación con el CSV de Simulink), luego la Fase 9 (pulido y publicación) y la Fase 7 (modo análisis) queda al final. Las secciones de este archivo siguen ese orden.
+
 ## Orden de prioridad si el tiempo es corto
 
 1. Fases 0, 1, 3, 5 y 6: cumplen todos los requisitos de la rúbrica (animación sincronizada, gráfica con cursor, valores en vivo y sliders).
 2. Fases 2 y 4: elevan la calidad visual.
-3. Fases 7, 8 y 9: suman puntos en la exposición y en la validación.
+3. Fases 8, 9 y 7 (en ese orden): suman puntos en la validación y en la exposición.

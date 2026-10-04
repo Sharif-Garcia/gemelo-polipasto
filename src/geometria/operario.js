@@ -172,3 +172,29 @@ export function aMundo(ubicacion, p) {
   // rotY = -pi/2: +z local -> -x mundo, +x local -> +z mundo
   return [ubicacion.x - p[2], p[1], ubicacion.z + p[0]];
 }
+
+/* ---------- Alcance ---------- */
+
+// Altura mas alta de la franja de agarre en la que la mano que agarra alcanza la
+// cadena exactamente en toda la carrera, con la inclinacion maxima (el peor caso).
+// Se calcula una vez con la propia postura, asi sigue valiendo si cambia el cuerpo.
+let alcanceCache = null;
+export function alturaAgarreMaxima() {
+  if (alcanceCache !== null) return alcanceCache;
+  const alcanza = (h) => {
+    for (let s = 0; s < 2 * CARRERA; s += 0.01) {
+      const q = posturaOperario({
+        t: 1, s, s_on: 0, s_off: 0, t_on: 0, t_off: 2, F0: 1e9, F_min: 1, H_mano: h, H_fijo: 10,
+      });
+      for (const l of Object.values(q.lados)) {
+        if (l.agarra && norma(resta(l.mano, l.objetivo)) > 1e-9) return false;
+      }
+    }
+    return true;
+  };
+  let h = ALTURA_AGARRE_MIN;
+  while (alcanza(h + 0.005)) h += 0.005;
+  alcanceCache = h;
+  return h;
+}
+
