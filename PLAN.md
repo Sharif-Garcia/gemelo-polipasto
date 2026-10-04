@@ -291,18 +291,12 @@ colores, cotas dinámicas y un cuadro con la ecuación de movimiento evaluada en
 **Objetivo:** dejarlo listo para la exposición y para el enlace de la memoria.
 
 **Detalles:**
-- Pantalla de carga con el título del proyecto.
-- Revisión de rendimiento (memoización, instancias, sombras) y prueba en celular.
-- `README.md` con descripción, capturas, instrucciones y créditos (incluido el modelo de Mixamo).
-- Subir a GitHub y publicar en Vercel; copiar el enlace en la sección 4.2.3 de la memoria.
-
-**Prompt:**
-
-```
-Fase 9 de PLAN.md. Revisa rendimiento y errores, agrega una pantalla de carga con el título del
-proyecto, mejora la adaptación a pantallas pequeñas, escribe README.md en español y guíame paso a
-paso para subir el proyecto a GitHub y publicarlo en Vercel.
-```
+- Pantalla de carga con el título, la asignatura, la universidad y progreso real de los recursos.
+- Rendimiento: calidad automática con PerformanceMonitor (sin N8AO ni bloom, sombras de 1024 y resolución 1× en equipos lentos), HDR y fuentes locales, cálculo de la cadena compartido por cuadro.
+- Ayuda (H o ?) con atajos y paneles; modo presentación (P) con la barra de reproducción y una tarjeta de t, y, ẏ, ÿ y u.
+- `README.md` en español con capturas, modelo, requisitos, validación, ejecución, pruebas, estructura, limitaciones y autoras.
+- Build de producción revisado con `npm run build` y `npm run preview`.
+- Subir a GitHub (https://github.com/Sharif-Garcia/gemelo-polipasto) y publicar en Vercel; copiar el enlace en la sección 4.2.3 de la memoria.
 
 ---
 

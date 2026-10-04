@@ -27,10 +27,10 @@ function desplazarVertical(controles, dy) {
 // Lleva la camara a la vista actual para el area visible del lienzo.
 // Devuelve la altura del bloque movil en ese momento (punto de partida del seguimiento).
 function encuadrar(controles, { camera, size }, animar) {
-  const { vista, sim, indice, paneles } = usarGemelo.getState();
+  const { vista, sim, indice, paneles, presentacion } = usarGemelo.getState();
   const y = sim.r.y[indice];
   const fov = (camera.fov * Math.PI) / 180;
-  const area = areaVisible(size.width, size.height, paneles);
+  const area = areaVisible(size.width, size.height, paneles, presentacion);
   const { posicion, objetivo } = encuadreVista(vista, obtenerDisposicion(sim.p), y, fov, area.ancho / area.alto);
   controles.setLookAt(...posicion, ...objetivo, animar);
   return alturaBloqueMovil(y);
@@ -40,6 +40,7 @@ export default function Camaras() {
   const controles = useRef(null);
   const solicitudVista = usarGemelo((s) => s.solicitudVista);
   const paneles = usarGemelo((s) => s.paneles);
+  const presentacion = usarGemelo((s) => s.presentacion);
   const get = useThree((s) => s.get);
   const ancho = useThree((s) => s.size.width);
   const alto = useThree((s) => s.size.height);
@@ -51,8 +52,8 @@ export default function Camaras() {
   // solo se corrige este desplazamiento: el giro y el zoom del usuario se conservan.
   // La camara es "manual" (Escena.jsx) para que R3F no sobrescriba el aspecto.
   useLayoutEffect(() => {
-    aplicarCuadroCamara(get().camera, ancho, alto, paneles);
-  }, [ancho, alto, paneles, get]);
+    aplicarCuadroCamara(get().camera, ancho, alto, paneles, presentacion);
+  }, [ancho, alto, paneles, presentacion, get]);
 
   // Reencuadre completo solo al elegir una vista (sin animacion la primera vez)
   useEffect(() => {

@@ -13,6 +13,10 @@ describe("Acciones", () => {
     expect(accionDeTecla(tecla("f"))).toEqual({ tipo: "fps" });
     expect(accionDeTecla(tecla("a"))).toEqual({ tipo: "modo" });
     expect(accionDeTecla(tecla("A"))).toEqual({ tipo: "modo" });
+    expect(accionDeTecla(tecla("p"))).toEqual({ tipo: "presentacion" });
+    expect(accionDeTecla(tecla("h"))).toEqual({ tipo: "ayuda" });
+    expect(accionDeTecla(tecla("?"))).toEqual({ tipo: "ayuda" });
+    expect(accionDeTecla(tecla("Escape"))).toEqual({ tipo: "escape" });
     expect(accionDeTecla(tecla("ArrowLeft"))).toEqual({ tipo: "paso", sentido: -1 });
     expect(accionDeTecla(tecla("ArrowRight"))).toEqual({ tipo: "paso", sentido: 1 });
     VISTAS.forEach((v, i) => expect(accionDeTecla(tecla(String(i + 1)))).toEqual({ tipo: "vista", id: v.id }));

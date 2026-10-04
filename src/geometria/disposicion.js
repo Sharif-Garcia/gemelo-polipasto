@@ -293,7 +293,18 @@ export function sigmaMano(disp, y) {
   return largoFijo(disp, y);
 }
 
+// Ultimo estado calculado: Cadena y las cotas del modo analisis lo piden en el
+// mismo cuadro con la misma y (el estado no se modifica despues de crearlo)
+const ultimoEstado = { disp: null, y: NaN, estado: null };
+
 export function estadoCadena(disp, y) {
+  if (ultimoEstado.disp === disp && ultimoEstado.y === y) return ultimoEstado.estado;
+  const estado = calcularEstadoCadena(disp, y);
+  Object.assign(ultimoEstado, { disp, y, estado });
+  return estado;
+}
+
+function calcularEstadoCadena(disp, y) {
   const { n, r, H_fijo, poleas, ramales, amarre, mano, centroMonton } = disp;
   const Hm = alturaBloqueMovil(y);
   const segmentos = [];

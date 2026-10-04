@@ -1,8 +1,12 @@
 /* Estudio fotografico: ciclorama claro (piso y pared con curva continua),
    iluminacion de estudio y sombras suaves. */
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { PlaneGeometry } from "three";
 import { Environment, ContactShadows } from "@react-three/drei";
+import { usarGemelo } from "../../estado/usarGemelo.js";
+
+// HDR de estudio local (Poly Haven, CC0): la escena se ilumina igual sin conexion
+const HDR_ESTUDIO = `${import.meta.env.BASE_URL}hdri/studio_small_03_1k.hdr`;
 
 export const COLOR_ESTUDIO = "#e8e8eb";
 
@@ -42,6 +46,19 @@ function crearCiclorama() {
 }
 
 export default function Estudio() {
+  const baja = usarGemelo((s) => s.calidad === "baja");
+  const luz = useRef(null);
+  const tamanoSombra = baja ? 1024 : 2048;
+
+  // Al cambiar la calidad se rehace el mapa de sombras con el nuevo tamaño
+  useEffect(() => {
+    const sombra = luz.current?.shadow;
+    if (!sombra) return;
+    sombra.mapSize.set(tamanoSombra, tamanoSombra);
+    sombra.map?.dispose();
+    sombra.map = null;
+  }, [tamanoSombra]);
+
   const ciclorama = useMemo(() => crearCiclorama(), []);
 
   return (
@@ -49,13 +66,14 @@ export default function Estudio() {
       <color attach="background" args={[COLOR_ESTUDIO]} />
       <fog attach="fog" args={[COLOR_ESTUDIO, 16, 34]} />
 
-      <Environment preset="studio" environmentIntensity={0.35} />
+      <Environment files={HDR_ESTUDIO} environmentIntensity={0.35} />
       <ambientLight intensity={0.08} />
       <directionalLight
         position={[-4, 7, 3]}   // desde la izquierda: la sombra cae hacia la camara general
         intensity={3.4}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        ref={luz}
+        shadow-mapSize={[tamanoSombra, tamanoSombra]}
         shadow-radius={3}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
@@ -78,7 +96,7 @@ export default function Estudio() {
         scale={8}
         blur={1.2}
         far={1.2}
-        resolution={1024}
+        resolution={baja ? 512 : 1024}
       />
     </>
   );

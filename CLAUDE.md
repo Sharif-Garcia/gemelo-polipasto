@@ -107,6 +107,14 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - Etiquetas 3D (`Etiqueta3D`, texto de troika: salen en las capturas) de tamaño fijo en píxeles. `DiagramaFuerzas` y `CotasAnalisis` piden sus etiquetas en cada cuadro y `ModoAnalisis` las proyecta, las separa con `acomodarEtiquetas` y las devuelve a 3D. Durante la captura, `pantalla.js` hace que se midan para 1920×1080.
 - En modo análisis el panel derecho muestra `PanelAnalisis` (ecuación con números y verificación, fuerzas, T_j con barra de colores, escala).
 
+## Pulido y publicación
+
+- Recursos locales para funcionar sin conexión: HDR del estudio en `public/hdri/` (`Estudio.jsx` lo carga con `BASE_URL`), fuentes de `@fontsource/inter`.
+- `calidad` en el estado ("alta" / "baja"): `PerformanceMonitor` (en `Escena`) la baja si faltan cuadros; con "baja" no hay N8AO ni bloom, las sombras son de 1024 y la resolución es 1×.
+- `PantallaCarga` combina `useProgress` (cargadores de three), `document.fonts.ready` y `escenaLista` (primer cuadro, `PrimerCuadro.jsx`).
+- `presentacion` (tecla P) oculta paneles, vistas y gráficas (estas se ocultan sin desmontarse); `areaVisible` y `bordesLaterales` reciben ese indicador. `ayuda` (H o ?) abre `Ayuda.jsx`; Esc cierra la ayuda o sale de la presentación.
+- `docs/capturas/` contiene las imágenes del README (generadas con "Capturar escena").
+
 ## Operario (`src/geometria/operario.js`)
 
 - Funciones puras en el marco local del operario (+z hacia la cadena, +x a su izquierda); `ubicacionOperario(disp)` lo coloca del lado +x del tramo libre mirando a −x, y `aMundo` convierte al mundo. El montón está en z = −0.35 para no quedar bajo sus pies.

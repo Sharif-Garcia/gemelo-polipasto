@@ -11,8 +11,10 @@ export const MEDIDAS = {
 };
 
 // Bordes izquierdo y derecho que ocupan los paneles laterales
-export function bordesLaterales(paneles) {
+// (en modo presentacion no hay paneles: solo el margen)
+export function bordesLaterales(paneles, presentacion = false) {
   const { margen, anchoParametros, anchoValores, anchoPlegado } = MEDIDAS;
+  if (presentacion) return { izquierda: margen, derecha: margen };
   return {
     izquierda: margen + (paneles.parametros ? anchoParametros : anchoPlegado) + margen,
     derecha: margen + (paneles.valores ? anchoValores : anchoPlegado) + margen,
@@ -20,10 +22,10 @@ export function bordesLaterales(paneles) {
 }
 
 // Rectangulo libre de la escena: { x, y, ancho, alto } dentro del lienzo
-export function areaVisible(anchoLienzo, altoLienzo, paneles) {
+export function areaVisible(anchoLienzo, altoLienzo, paneles, presentacion = false) {
   const { margen, altoVistas, altoReproduccion } = MEDIDAS;
-  const { izquierda, derecha } = bordesLaterales(paneles);
-  const arriba = margen + altoVistas + margen;
+  const { izquierda, derecha } = bordesLaterales(paneles, presentacion);
+  const arriba = presentacion ? margen : margen + altoVistas + margen;
   const abajo = margen + altoReproduccion + margen;
   return {
     x: izquierda,

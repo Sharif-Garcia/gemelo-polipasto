@@ -37,8 +37,8 @@ export default function Capturador({ compositor }) {
 
     gl.setPixelRatio(relacionPixeles);
     c.setSize(size.width, size.height, false);
-    const { paneles, t, modo } = usarGemelo.getState();
-    aplicarCuadroCamara(camera, size.width, size.height, paneles);
+    const { paneles, presentacion, t, modo } = usarGemelo.getState();
+    aplicarCuadroCamara(camera, size.width, size.height, paneles, presentacion);
     descargarURL(url, `polipasto_${modo ?? "estudio"}_t${t.toFixed(3)}s.png`);
   }, [solicitud, get, compositor]);
 

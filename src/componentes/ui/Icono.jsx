@@ -8,6 +8,7 @@ const TRAZOS = {
   izquierda: <path d="M10 3.5L5.5 8l4.5 4.5" />,
   derecha: <path d="M6 3.5L10.5 8 6 12.5" />,
   abajo: <path d="M3.5 6l4.5 4.5L12.5 6" />,
+  pantalla: <><rect x="2" y="3" width="12" height="8" rx="1.2" /><path d="M8 11v2.5M5.5 13.5h5" /></>,
   alerta: <><path d="M8 2.2l6.2 11H1.8z" /><path d="M8 6.5v3.2" /><circle cx="8" cy="11.4" r="0.5" fill="currentColor" /></>,
 };
 

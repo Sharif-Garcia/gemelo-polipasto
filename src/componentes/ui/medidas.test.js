@@ -19,6 +19,14 @@ test("al plegar un panel el area libre crece hacia ese lado", () => {
   expect(bordesLaterales({ parametros: false, valores: false }).izquierda).toBe(2 * MEDIDAS.margen + MEDIDAS.anchoPlegado);
 });
 
+test("en modo presentacion el area libre ocupa casi todo el lienzo", () => {
+  const p = areaVisible(1366, 768, { parametros: true, valores: true }, true);
+  expect(p.x).toBe(MEDIDAS.margen);
+  expect(p.y).toBe(MEDIDAS.margen);
+  expect(p.ancho).toBe(1366 - 2 * MEDIDAS.margen);
+  expect(p.alto).toBe(768 - MEDIDAS.margen - (2 * MEDIDAS.margen + MEDIDAS.altoReproduccion));
+});
+
 test("nunca devuelve un area vacia", () => {
   const a = areaVisible(100, 50, { parametros: true, valores: true });
   expect(a.ancho).toBeGreaterThan(0);

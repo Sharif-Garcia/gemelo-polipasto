@@ -61,6 +61,21 @@ export const usarGemelo = create((set, get) => ({
   solicitudCaptura: 0,
   capturarEscena: () => set((s) => ({ solicitudCaptura: s.solicitudCaptura + 1 })),
 
+  /* La escena ya dibujo su primer cuadro (lo marca PrimerCuadro; pantalla de carga) */
+  escenaLista: false,
+
+  /* Calidad grafica: "alta" o "baja" (la baja PerformanceMonitor si faltan cuadros) */
+  calidad: "alta",
+  setCalidad: (calidad) => set({ calidad }),
+
+  /* Modo presentacion (tecla P) y ayuda (tecla H o ?) */
+  presentacion: false,
+  alternarPresentacion: () => set((s) => ({ presentacion: !s.presentacion })),
+  ayuda: false,
+  alternarAyuda: () => set((s) => ({ ayuda: !s.ayuda })),
+  // Escape: cierra la ayuda; si no esta abierta, sale del modo presentacion
+  escape: () => set((s) => (s.ayuda ? { ayuda: false } : { presentacion: false })),
+
   /* Interfaz: paneles laterales y medidor de FPS */
   paneles: { parametros: true, valores: true },
   mostrarFPS: false,

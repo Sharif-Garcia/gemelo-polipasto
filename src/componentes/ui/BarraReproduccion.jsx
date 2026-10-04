@@ -15,6 +15,7 @@ export default function BarraReproduccion() {
   const bucle = usarGemelo((s) => s.bucle);
   const tf = usarGemelo((s) => s.sim.p.tf);
   const paneles = usarGemelo((s) => s.paneles);
+  const presentacion = usarGemelo((s) => s.presentacion);
   const acciones = usarGemelo.getState();
   const linea = useRef(null);
   const tiempo = useRef(null);
@@ -29,7 +30,7 @@ export default function BarraReproduccion() {
     return usarGemelo.subscribe(pintar);
   }, [tf]);
 
-  const { izquierda, derecha } = bordesLaterales(paneles);
+  const { izquierda, derecha } = bordesLaterales(paneles, presentacion);
 
   return (
     <div
@@ -98,6 +99,19 @@ export default function BarraReproduccion() {
         aria-label="Bucle"
       >
         <Icono nombre="bucle" />
+      </button>
+      <span className="mx-1 h-6 w-px bg-neutral-900/10" aria-hidden="true" />
+      <button
+        className={botonIcono + " text-[12px] font-semibold" + (presentacion ? " bg-neutral-900/10" : "")}
+        onClick={acciones.alternarPresentacion}
+        aria-pressed={presentacion}
+        title={presentacion ? "Salir del modo presentación (P)" : "Modo presentación (P)"}
+        aria-label="Modo presentación"
+      >
+        <Icono nombre="pantalla" />
+      </button>
+      <button className={botonIcono + " text-[14px] font-semibold"} onClick={acciones.alternarAyuda} title="Ayuda (H o ?)" aria-label="Ayuda">
+        ?
       </button>
     </div>
   );
