@@ -30,6 +30,11 @@ export const usarGemelo = create((set, get) => ({
   velocidad: 1,
   bucle: false,
 
+  /* Camara: solicitudVista aumenta en cada clic para repetir la misma vista */
+  vista: "general",
+  solicitudVista: 0,
+  setVista: (vista) => set((s) => ({ vista, solicitudVista: s.solicitudVista + 1 })),
+
   // Cambia un parametro al instante y recalcula con un retardo corto.
   setParametro: (nombre, valor) => {
     set((s) => ({ parametros: { ...s.parametros, [nombre]: valor }, escenario: null }));

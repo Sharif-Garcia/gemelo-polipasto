@@ -58,6 +58,13 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `t` e `indice` cambian en cada cuadro: nunca leerlos con un selector de React. Usar `usarGemelo.getState()` dentro de `useFrame`, o `usarGemelo.subscribe` + refs para el DOM (ver `PanelDepuracion.jsx`).
 - Los escenarios (`src/estado/escenarios.js`) son solo los cambios respecto a `PARAMETROS_DEFECTO`.
 
+## Render 3D
+
+- `Escena.jsx` monta el `Canvas`; `Estudio` (ciclorama, luces, sombras), `Camaras` (CameraControls) y `Efectos` (postprocesado) son fijos, y el mecanismo se agrega como hijo.
+- Sombras con `shadows="percentage"` + `shadow-radius`: en three r186 `PCFSoftShadowMap` (lo que usa `shadows={true}`) ya no existe y avisa en consola.
+- El `EffectComposer` desactiva el tone mapping del renderer; por eso `Efectos.jsx` termina con `ToneMapping` (ACES) y `SMAA` (`multisampling={0}`).
+- Vistas de cámara en `src/componentes/escena/vistas.js`; `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar.
+
 
 ## Modelo físico (NO modificar sin pedirlo)
 
