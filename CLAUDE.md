@@ -64,6 +64,15 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - Sombras con `shadows="percentage"` + `shadow-radius`: en three r186 `PCFSoftShadowMap` (lo que usa `shadows={true}`) ya no existe y avisa en consola.
 - El `EffectComposer` desactiva el tone mapping del renderer; por eso `Efectos.jsx` termina con `ToneMapping` (ACES) y `SMAA` (`multisampling={0}`).
 - Vistas de cámara en `src/componentes/escena/vistas.js`; `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar.
+- `Text` de drei usa la fuente local `@fontsource/inter` (.woff; troika no lee .woff2) dentro de `Suspense`: sin ella, la carga de la fuente desde el CDN suspende toda la escena.
+
+## Geometría del polipasto (`src/geometria/disposicion.js`)
+
+- Funciones puras (sin three.js) con pruebas en `disposicion.test.js`. `crearDisposicion(sim.p)` se recalcula solo cuando cambia la simulación; los componentes de `escena/` solo la dibujan.
+- Poleas y ramales en el plano z = 0. La polea k une los ramales k y k+1 (separados 2·r_polea). Bloque móvil centrado en x = 0; su eje está en `alturaBloqueMovil(y) = H_movil0 + y` y el fijo en `H_fijo = H_movil0 + D0`.
+- La cadena usa una coordenada material σ medida desde el amarre: cada eslabón conserva su σ y su posición es el punto σ de la trayectoria para el y actual (`recorrerCadena`). Así los ramales avanzan con c_j·ydot sin integrar nada, también al adelantar o retroceder la reproducción.
+- La mano queda fija en `H_fijo - L1`; la cadena recogida (n·y) cae a un montón en el piso cuyo extremo final está fijo. El largo del montón se resuelve por bisección para conservar la longitud total exacta.
+- Giro de poleas: `anguloPolea = giro·k·y/r_polea` (`giro` = +1 móvil, −1 fija).
 
 
 ## Modelo físico (NO modificar sin pedirlo)

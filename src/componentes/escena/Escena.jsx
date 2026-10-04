@@ -4,7 +4,7 @@ import { Stats } from "@react-three/drei";
 import Estudio from "./Estudio.jsx";
 import Camaras from "./Camaras.jsx";
 import Efectos from "./Efectos.jsx";
-import CuboReferencia from "./CuboReferencia.jsx";
+import Polipasto from "./Polipasto.jsx";
 
 export default function Escena() {
   return (
@@ -16,7 +16,7 @@ export default function Escena() {
     >
       <Estudio />
       <Camaras />
-      <CuboReferencia />
+      <Polipasto />
       <Efectos />
       {import.meta.env.DEV && <Stats className="left-auto! right-0! top-auto! bottom-0!" />}
     </Canvas>
