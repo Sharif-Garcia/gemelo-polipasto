@@ -128,6 +128,11 @@ M_eq    = M_t + m_p_eq + m_r_eff
 
 Cualquier cambio en el código debe mantener estas pruebas en verde (`npm test`).
 
+## Limitaciones del modelo
+
+- La entrada es una fuerza ideal: `u = F0` constante entre t_on y t_off, sin importar la velocidad de la cadena. Con los parámetros por defecto la cadena llega a `sdot = n*ydot ≈ 9.8 m/s` y el operario desarrollaría `P = u*sdot ≈ 1965 W`, algo que ninguna persona puede sostener (un humano jala a unos 1 a 1.5 m/s y sostiene unos 200 a 300 W).
+- Decisión del proyecto: se mantiene la fuerza ideal (coherente con MATLAB/Simulink). No cambiar la física ni la animación del jalón por este motivo; mencionarlo como limitación en la memoria y en la interfaz si hace falta.
+
 ## Parámetros y nomenclatura
 
 Usar siempre estos nombres (son los mismos de MATLAB y de la memoria del proyecto):

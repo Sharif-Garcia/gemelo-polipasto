@@ -146,7 +146,7 @@ eslabones deslizando con c_j*ydot. Valida con n = 2, 3, 4, 5 y 6.
 
 ## Fase 4. Operario
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** una persona que jala la cadena de forma sincronizada con u(t).
 
