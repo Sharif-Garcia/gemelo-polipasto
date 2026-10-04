@@ -3,9 +3,10 @@
 import { useMemo } from "react";
 import { ExtrudeGeometry, Shape } from "three";
 import { MATERIALES } from "./materiales.js";
+import { DIMENSIONES } from "../../geometria/disposicion.js";
 
 const PERFIL = { alto: 0.2, ancho: 0.12, ala: 0.012, alma: 0.008 };
-const X_COLUMNA = 1.35;
+const X_COLUMNA = DIMENSIONES.x_columna;
 const LARGO_VIGA = 3.0;
 
 // Perfil I en el plano (u, v), extruido a lo largo de z

@@ -27,9 +27,11 @@ export const DIMENSIONES = {
   H_movil0: 0.8,          // altura del eje del bloque movil con la carga en el piso [m]
   h_carga: 0.3,           // altura de la carga [m]
   densidad_carga: 7850,   // acero [kg/m^3]
-  holgura_carga: 0.04,    // separacion minima entre la carga y el tramo libre [m]
+  holgura_carga: 0.06,    // separacion minima entre la carga y el tramo libre (y los puños) [m]
   margen_bloque: 0.035,   // placas del bloque mas alla del borde de las poleas [m]
   suspension_fijo: 0.22,  // del borde superior del bloque fijo a la viga [m]
+  x_columna: 1.35,        // eje de las columnas del portico [m]
+  ala_columna: 0.06,      // media ala del perfil de las columnas [m]
   paso: 0.022,            // paso de la cadena (largo interior del eslabon) [m]
   d_alambre: 0.005,       // diametro del alambre del eslabon [m]
   ancho_eslabon: 0.0185,  // ancho exterior del eslabon [m]
@@ -37,7 +39,8 @@ export const DIMENSIONES = {
   largo_monton0: 0.8,     // cadena en el piso con y = 0 [m]
   segmentos_curva: 24,    // tramos rectos de la curva mano-monton
   monton: {
-    separacion_x: 0.28,   // del tramo libre al centro del monton [m]
+    separacion_x: 0.08,   // del tramo libre al centro del monton [m]
+    z: -0.35,             // detras del plano de la cadena, lejos del operario [m]
     radio_min: 0.015,     // radio del cono con lambda = 0 [m]
     talud: 0.45,          // altura / radio del cono
     volumen_por_metro: 1.5e-4, // volumen aparente de 1 m de cadena amontonada [m^3/m]
@@ -234,7 +237,7 @@ export function crearDisposicion(p) {
 
   const viga = { yInferior: H_fijo + bloques.medioAlto + D.suspension_fijo };
 
-  const centroMonton = [xLibre + D.monton.separacion_x, 0, 0];
+  const centroMonton = [xLibre + D.monton.separacion_x, 0, D.monton.z];
 
   const disp = {
     n, r, D0, H_fijo, poleas, amarre, ramales, xLibre, bloques, mano, carga, viga, centroMonton,

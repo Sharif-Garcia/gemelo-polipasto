@@ -1,5 +1,5 @@
 /* Materiales PBR compartidos del polipasto (una sola instancia de cada uno). */
-import { MeshStandardMaterial } from "three";
+import { MeshPhysicalMaterial, MeshStandardMaterial } from "three";
 
 export const MATERIALES = {
   // Pintura industrial amarilla de los bloques
@@ -14,6 +14,13 @@ export const MATERIALES = {
   gancho: new MeshStandardMaterial({ color: "#6f757c", metalness: 0.95, roughness: 0.38 }),
   // Viga y columnas pintadas
   viga: new MeshStandardMaterial({ color: "#46505c", metalness: 0.4, roughness: 0.55 }),
+  // Maniqui de estudio: blanco satinado y articulaciones gris claro
+  maniqui: new MeshPhysicalMaterial({
+    color: "#ecebe7", roughness: 0.55, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.45,
+  }),
+  articulacion: new MeshPhysicalMaterial({
+    color: "#c7cbd0", roughness: 0.4, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.3,
+  }),
   // Carga de acero pintada
   carga: new MeshStandardMaterial({ color: "#3a3f47", metalness: 0.55, roughness: 0.48 }),
 };

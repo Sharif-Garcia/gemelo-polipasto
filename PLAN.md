@@ -150,30 +150,25 @@ eslabones deslizando con c_j*ydot. Valida con n = 2, 3, 4, 5 y 6.
 
 **Objetivo:** una persona que jala la cadena de forma sincronizada con u(t).
 
-**Archivos:** `src/componentes/escena/Operario.jsx`, `public/modelos/operario.glb`.
+**Archivos:** `src/componentes/escena/Operario.jsx`, `src/geometria/operario.js`, `src/geometria/operario.test.js`.
 
-**Opciones:**
-- **Recomendada:** personaje de Mixamo (mixamo.com, gratis). Descargar un personaje con una animación de jalar una cuerda (buscar "pulling" o "rope pull"), en formato FBX, convertir a GLB con Blender (File > Import FBX, File > Export glTF 2.0) y guardar en `public/modelos/operario.glb`.
-- **Alternativa:** maniquí procedural con articulaciones (si no se consigue el modelo).
+**Decisión:** maniquí procedural (no se usa Mixamo). Toda la postura sale de funciones puras con pruebas; el componente solo la dibuja.
+
+**Aspecto:**
+- Maniquí de estudio de unos 1.75 m, blanco satinado, con articulaciones esféricas visibles (hombros, codos, muñecas, caderas, rodillas, tobillos), puños cerrados y cabeza ovalada sin rostro.
 
 **Comportamiento:**
-- Mientras `u > 0` reproduce la animación de jalar; la mano sigue el extremo libre, que baja `s = n*y`.
-- Cuando `u = 0` vuelve a una pose de reposo con transición suave.
-- La intensidad del jalón se refleja en la postura (inclinación hacia atrás proporcional a u / F_min).
+- De pie del lado +x del tramo libre, mirando la cadena, que cae entre sus manos a la altura H_fijo - L1.
+- Brazos y piernas con cinemática inversa analítica de dos segmentos.
+- Jalón mano sobre mano mientras `u > 0`: la mano que agarra baja con la cadena a `sdot = n*ydot`; la otra sube abierta por fuera. El ritmo sale del avance de la cadena (si la cadena no se mueve, las manos tampoco).
+- Torso inclinado hacia atrás en proporción a u / F_min (con límite), cadera baja y atrás, rodillas flexionadas.
+- Cuando `u = 0` suelta la cadena y vuelve a reposo en 0.3 s; al volver `u > 0` la retoma en 0.3 s.
 
 **Criterios:**
 - El operario empieza a jalar en t_on y suelta en t_off, sincronizado con la gráfica de u(t).
-- La cadena llega a sus manos sin cortes visibles.
-
-**Prompt:**
-
-```
-Fase 4 de PLAN.md. Agrega el operario. Si existe public/modelos/operario.glb, cárgalo con
-useGLTF y useAnimations, reproduce la animación de jalar mientras u > 0 y pasa a reposo con
-crossFade cuando u = 0; ajusta la posición para que las manos coincidan con el extremo libre de la
-cadena. Si el archivo no existe, crea un maniquí procedural articulado con la misma lógica.
-Sincroniza todo con el índice actual del estado.
-```
+- La mano que agarra queda exactamente sobre la cadena y baja con ella sin patinar.
+- Con "Fuerza insuficiente" jala inclinado aunque la cadena no se mueva.
+- No choca con el pórtico ni con el montón para n de 2 a 6.
 
 ---
 

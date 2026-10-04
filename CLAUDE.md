@@ -76,6 +76,12 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `obtenerDisposicion(p)` cachea por objeto de parámetros: úsala en vez de `crearDisposicion` en componentes (la comparten `Polipasto` y `Camaras`).
 - Giro de poleas: `anguloPolea = giro·k·y/r_polea` (`giro` = +1 móvil, −1 fija).
 
+## Operario (`src/geometria/operario.js`)
+
+- Funciones puras en el marco local del operario (+z hacia la cadena, +x a su izquierda); `ubicacionOperario(disp)` lo coloca del lado +x del tramo libre mirando a −x, y `aMundo` convierte al mundo. El montón está en z = −0.35 para no quedar bajo sus pies.
+- `posturaOperario` recibe t, s = n·y y los valores de s en t_on y t_off (la escena los lee de `sim.r.s`). La fase mano sobre mano sale de `s - s_on` (carrera `CARRERA`), así que el ritmo depende de sdot; al soltar, s se congela en `s_off`.
+- `pesoJalon` mezcla reposo y jalón con rampas de `TRANSICION` = 0.3 s; la inclinación es `inclinacion(F0, F_min)` por ese peso.
+
 
 ## Modelo físico (NO modificar sin pedirlo)
 
