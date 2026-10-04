@@ -64,6 +64,18 @@ export function tiempoEIndice(sim, t) {
   return { t: tAcotado, indice: Fisica.indice(sim, tAcotado) };
 }
 
+/* Fila de cada etiqueta de marca: la primera fila donde no toca a la anterior.
+   etiquetas: [{ x, ancho }] ordenadas por x (en pixeles); separacion minima en px. */
+export function filasEtiquetas(etiquetas, separacion) {
+  const finFila = [];
+  return etiquetas.map(({ x, ancho }) => {
+    let fila = finFila.findIndex((fin) => x > fin + separacion);
+    if (fila < 0) fila = finFila.length;
+    finFila[fila] = x + ancho;
+    return fila;
+  });
+}
+
 /* ---------- Zoom del eje del tiempo ---------- */
 
 export const RANGO_MIN = 0.05;   // ancho minimo del zoom [s]

@@ -174,7 +174,7 @@ eslabones deslizando con c_j*ydot. Valida con n = 2, 3, 4, 5 y 6.
 
 ## Fase 5. Gráficas sincronizadas
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** gráficas con cursor temporal que avanza con la animación.
 

@@ -1,12 +1,18 @@
 /* Control de camara con giro de 360°, limites, transicion suave a las vistas
    y seguimiento en vivo del bloque movil en la vista "Poleas moviles". */
-import { useEffect, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Box3, Vector3 } from "three";
 import { CameraControls } from "@react-three/drei";
 import { usarGemelo } from "../../estado/usarGemelo.js";
 import { obtenerDisposicion, alturaBloqueMovil } from "../../geometria/disposicion.js";
 import { buscarVista, encuadreVista } from "./vistas.js";
+
+// Franja inferior del lienzo tapada por la barra de vistas [px]: no cuenta para encuadrar
+export const FRANJA_INFERIOR = 84;
+
+// Area util del lienzo (sin la franja inferior)
+const areaUtil = (size) => ({ ancho: size.width, alto: Math.max(1, size.height - FRANJA_INFERIOR) });
 
 // Zona donde puede moverse el punto al que mira la camara [m]
 const LIMITES_OBJETIVO = new Box3(new Vector3(-4, 0.2, -2.5), new Vector3(4, 4.5, 4));
@@ -22,36 +28,62 @@ function desplazarVertical(controles, dy) {
   controles._needsUpdate = true;
 }
 
+// Lleva la camara a la vista actual para el tamaño actual del lienzo.
+// Devuelve la altura del bloque movil en ese momento (punto de partida del seguimiento).
+function encuadrar(controles, { camera, size }, animar) {
+  const { vista, sim, indice } = usarGemelo.getState();
+  const y = sim.r.y[indice];
+  const fov = (camera.fov * Math.PI) / 180;
+  const { ancho, alto } = areaUtil(size);
+  const { posicion, objetivo } = encuadreVista(vista, obtenerDisposicion(sim.p), y, fov, ancho / alto);
+  controles.setLookAt(...posicion, ...objetivo, animar);
+  return alturaBloqueMovil(y);
+}
+
 export default function Camaras() {
   const controles = useRef(null);
   const solicitudVista = usarGemelo((s) => s.solicitudVista);
   const p = usarGemelo((s) => s.sim.p);
+  const get = useThree((s) => s.get);
+  const ancho = useThree((s) => s.size.width);
+  const altoLienzo = useThree((s) => s.size.height);
+  const aspecto = areaUtil({ width: ancho, height: altoLienzo });
+
+  // Proyeccion centrada en el area util: el cuadro de la camara es el area sobre la barra
+  // de vistas y el lienzo sigue dibujando la franja inferior (setViewOffset). La camara es
+  // "manual" (Escena.jsx) para que R3F no sobrescriba el aspecto al cambiar el tamaño.
+  useLayoutEffect(() => {
+    const { camera } = get();
+    const { alto } = areaUtil({ width: ancho, height: altoLienzo });
+    camera.aspect = ancho / alto;
+    camera.setViewOffset(ancho, alto, 0, 0, ancho, altoLienzo);
+    camera.updateProjectionMatrix();
+  }, [ancho, altoLienzo, get]);
   const primeraVez = useRef(true);
   const pAnterior = useRef(p);
   const alturaSeguida = useRef(0);
 
-  // Lleva la camara a la vista actual (con animacion salvo la primera vez)
-  const encuadrar = (animar) => {
-    const c = controles.current;
-    if (!c) return;
-    const { vista, sim, indice } = usarGemelo.getState();
-    const y = sim.r.y[indice];
-    const { posicion, objetivo } = encuadreVista(vista, obtenerDisposicion(sim.p), y);
-    c.setLookAt(...posicion, ...objetivo, animar);
-    alturaSeguida.current = alturaBloqueMovil(y);
-  };
-
+  // Nueva vista (sin animacion la primera vez)
   useEffect(() => {
-    encuadrar(!primeraVez.current);
+    if (!controles.current) return;
+    alturaSeguida.current = encuadrar(controles.current, get(), !primeraVez.current);
     primeraVez.current = false;
-  }, [solicitudVista]);
+  }, [solicitudVista, get]);
 
-  // Si cambian los parametros (n, r_polea...), las vistas de poleas se reencuadran
+  // Si cambian los parametros (n, r_polea...), las vistas de bloques y del operario se reencuadran
   useEffect(() => {
-    if (pAnterior.current === p) return;
+    if (pAnterior.current === p || !controles.current) return;
     pAnterior.current = p;
-    if (buscarVista(usarGemelo.getState().vista).bloque) encuadrar(true);
-  }, [p]);
+    if (buscarVista(usarGemelo.getState().vista).caja !== "portico") {
+      alturaSeguida.current = encuadrar(controles.current, get(), true);
+    }
+  }, [p, get]);
+
+  // Al cambiar el tamaño del lienzo (ventana o panel de graficas) se reencuadra con transicion
+  useEffect(() => {
+    if (primeraVez.current || !controles.current) return;
+    alturaSeguida.current = encuadrar(controles.current, get(), true);
+  }, [aspecto.ancho, aspecto.alto, get]);
 
   useEffect(() => {
     controles.current?.setBoundary(LIMITES_OBJETIVO);

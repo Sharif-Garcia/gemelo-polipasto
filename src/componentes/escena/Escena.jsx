@@ -12,7 +12,7 @@ export default function Escena() {
       shadows="percentage"
       dpr={[1, 2]}
       gl={{ antialias: false }}
-      camera={{ fov: 40, near: 0.05, far: 60, position: [5, 3, 6.5] }}
+      camera={{ fov: 40, near: 0.05, far: 60, position: [5, 3, 6.5], manual: true }}
     >
       <Estudio />
       <Camaras />

@@ -8,15 +8,15 @@ export const COLOR_ESTUDIO = "#e8e8eb";
 
 // Perfil del ciclorama en el plano (z, y) [m]
 const ANCHO = 80;          // a lo largo de x (bordes ocultos por la niebla)
-const FONDO_PISO = 9;      // piso desde z = +6 hasta el inicio de la curva
-const Z_FRENTE = 6;
+const FONDO_PISO = 25;     // piso desde z = +22 hasta el inicio de la curva (z = -3)
+const Z_FRENTE = 22;       // mas alla de la distancia maxima de la camara: el borde nunca se ve
 const RADIO_CURVA = 2.5;
 const ALTO_PARED = 8;
 
 function crearCiclorama() {
   const largoCurva = (Math.PI / 2) * RADIO_CURVA;
   const largoTotal = FONDO_PISO + largoCurva + ALTO_PARED;
-  const geometria = new PlaneGeometry(ANCHO, largoTotal, 1, 120);
+  const geometria = new PlaneGeometry(ANCHO, largoTotal, 1, 240);
   const pos = geometria.attributes.position;
   const zInicioCurva = Z_FRENTE - FONDO_PISO;
 

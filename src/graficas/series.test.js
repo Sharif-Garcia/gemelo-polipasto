@@ -4,7 +4,7 @@ import { Fisica } from "../fisica/fisica.js";
 import { parametrosDeEscenario } from "../estado/escenarios.js";
 import {
   VARIABLES, PESTANAS, buscarPestana, datosGrafica, etiquetaEje, marcasEventos,
-  tiempoEIndice, acotarRango, zoomRueda, RANGO_MIN,
+  tiempoEIndice, acotarRango, zoomRueda, RANGO_MIN, filasEtiquetas,
 } from "./series.js";
 
 const sim = Fisica.simular();
@@ -62,6 +62,19 @@ describe("Marcas de eventos", () => {
   test("si la carga no despega solo se marca t_off", () => {
     const insuficiente = Fisica.simular(parametrosDeEscenario("fuerza-insuficiente"));
     expect(marcasEventos(insuficiente).map((m) => m.etiqueta)).toEqual(["t_off"]);
+  });
+});
+
+describe("Etiquetas de las marcas", () => {
+  test("dos etiquetas cercanas alternan de fila y las lejanas comparten la primera", () => {
+    // despegue lejos; t_off y y max casi juntas; aterrizaje lejos
+    const filas = filasEtiquetas(
+      [{ x: 100, ancho: 50 }, { x: 300, ancho: 26 }, { x: 315, ancho: 30 }, { x: 500, ancho: 55 }], 6);
+    expect(filas).toEqual([0, 0, 1, 0]);
+  });
+
+  test("tres etiquetas encimadas usan tres filas", () => {
+    expect(filasEtiquetas([{ x: 0, ancho: 40 }, { x: 10, ancho: 40 }, { x: 20, ancho: 40 }], 6)).toEqual([0, 1, 2]);
   });
 });
 

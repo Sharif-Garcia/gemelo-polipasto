@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 import { usarGemelo } from "../../estado/usarGemelo.js";
-import { VARIABLES, etiquetaEje, zoomRueda, acotarRango } from "../../graficas/series.js";
+import { VARIABLES, etiquetaEje, zoomRueda, acotarRango, filasEtiquetas } from "../../graficas/series.js";
 
 const TINTA = "#52514e";        // texto secundario
 const REJILLA = "#e8e7e3";      // un paso sobre la superficie
@@ -19,7 +19,8 @@ const FACTOR_RUEDA = 1.15;
 // Marcas de los ejes con punto decimal, como el resto de la interfaz
 const formatoPunto = (u, splits) => splits.map((v) => String(Number(v.toPrecision(6))));
 
-// Lineas verticales finas en los eventos, con etiqueta opcional (alternan altura si estan cerca)
+// Lineas verticales finas en los eventos, con etiqueta opcional. Las etiquetas que
+// quedarian encimadas (t_off y y max suelen estar cerca) bajan a otra fila.
 function dibujarMarcas(u, marcas, conEtiqueta) {
   const { ctx, bbox } = u;
   const pr = uPlot.pxRatio;
@@ -27,21 +28,22 @@ function dibujarMarcas(u, marcas, conEtiqueta) {
   ctx.setLineDash([]);   // no heredar el trazo punteado de una serie
   ctx.font = `${10 * pr}px system-ui, sans-serif`;
   ctx.textBaseline = "top";
-  let xAnterior = -Infinity, fila = 0;
-  for (const m of marcas) {
-    if (m.t < u.scales.x.min || m.t > u.scales.x.max) continue;
-    const x = Math.round(u.valToPos(m.t, "x", true)) + 0.5;
-    fila = x - xAnterior < 70 * pr ? (fila + 1) % 2 : 0;
-    xAnterior = x;
-    ctx.strokeStyle = MARCA;
-    ctx.lineWidth = pr;
+  ctx.strokeStyle = MARCA;
+  ctx.lineWidth = pr;
+  const visibles = marcas
+    .filter((m) => m.t >= u.scales.x.min && m.t <= u.scales.x.max)
+    .map((m) => ({ ...m, x: Math.round(u.valToPos(m.t, "x", true)) + 0.5 }));
+  for (const m of visibles) {
     ctx.beginPath();
-    ctx.moveTo(x, bbox.top);
-    ctx.lineTo(x, bbox.top + bbox.height);
+    ctx.moveTo(m.x, bbox.top);
+    ctx.lineTo(m.x, bbox.top + bbox.height);
     ctx.stroke();
-    if (!conEtiqueta) continue;
+  }
+  if (conEtiqueta) {
+    const textos = visibles.map((m) => ({ x: m.x + 4 * pr, ancho: ctx.measureText(m.etiqueta).width }));
+    const filas = filasEtiquetas(textos, 12 * pr);   // aire suficiente para leerlas por separado
     ctx.fillStyle = TINTA;
-    ctx.fillText(m.etiqueta, x + 4 * pr, bbox.top + (2 + fila * 12) * pr);
+    visibles.forEach((m, i) => ctx.fillText(m.etiqueta, textos[i].x, bbox.top + (2 + filas[i] * 13) * pr));
   }
   ctx.restore();
 }
@@ -76,8 +78,9 @@ export default function GraficaUPlot({
           stroke: TINTA, font: FUENTE, labelFont: FUENTE,
           grid: { stroke: REJILLA, width: 1 }, ticks: { stroke: REJILLA, width: 1 },
           label: ejeTiempo ? "t [s]" : undefined,
-          labelSize: ejeTiempo ? 16 : 0,
-          size: ejeTiempo ? 22 : 6,
+          labelSize: ejeTiempo ? 18 : 0,
+          labelGap: 2,
+          size: ejeTiempo ? 30 : 6,          // numeros arriba, "t [s]" debajo sin tocarlos
           values: ejeTiempo ? formatoPunto : (u, splits) => splits.map(() => ""),
         },
         {
@@ -242,25 +245,25 @@ export default function GraficaUPlot({
   }, [marcas]);
 
   return (
-    <div className="flex min-w-0 items-stretch">
-      {/* Leyenda: nombre, color y valor en el t actual (siempre visibles) */}
-      <div ref={leyenda} className="flex w-56 shrink-0 flex-col justify-center gap-1 pr-3 text-xs">
+    <div className="min-w-0">
+      {/* Leyenda compacta: color, nombre y valor en el t actual (siempre visibles) */}
+      <div ref={leyenda} className="flex h-5 items-center gap-5 pl-[52px] text-xs">
         {claves.map((c) => {
           const v = VARIABLES[c];
           return (
-            <div key={c} className="flex items-center gap-2">
+            <div key={c} className="flex items-center gap-1.5">
               <svg width="16" height="6" className="shrink-0" aria-hidden="true">
                 <line x1="0" y1="3" x2="16" y2="3" stroke={v.color} strokeWidth="2"
                   strokeDasharray={v.trazo ? v.trazo.join(" ") : undefined} strokeLinecap="round" />
               </svg>
               <span className="text-neutral-600">{v.nombre} {v.simbolo}</span>
-              <span className="ml-auto font-mono tabular-nums text-neutral-900" data-valor="" />
-              <span className="w-8 text-neutral-500">{v.unidad}</span>
+              <span className="min-w-[4.5rem] text-right font-mono tabular-nums text-neutral-900" data-valor="" />
+              <span className="text-neutral-500">{v.unidad}</span>
             </div>
           );
         })}
       </div>
-      <div ref={contenedor} className="relative min-w-0 flex-1" />
+      <div ref={contenedor} className="relative min-w-0" />
     </div>
   );
 }

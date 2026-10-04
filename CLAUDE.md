@@ -63,7 +63,9 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `Escena.jsx` monta el `Canvas`; `Estudio` (ciclorama, luces, sombras), `Camaras` (CameraControls) y `Efectos` (postprocesado) son fijos, y el mecanismo se agrega como hijo.
 - Sombras con `shadows="percentage"` + `shadow-radius`: en three r186 `PCFSoftShadowMap` (lo que usa `shadows={true}`) ya no existe y avisa en consola.
 - El `EffectComposer` desactiva el tone mapping del renderer; por eso `Efectos.jsx` termina con `ToneMapping` (ACES) y `SMAA` (`multisampling={0}`).
-- Vistas de cámara en `src/componentes/escena/vistas.js`; `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar. Las vistas de poleas se calculan con `encuadreVista` (distancia según el ancho del bloque); "Poleas móviles" sigue al bloque desplazando en Δy el objetivo interno de camera-controls (`_target`/`_targetEnd`) en un `useFrame` de prioridad −2, lo que conserva el giro y el zoom del usuario.
+- Vistas de cámara en `src/componentes/escena/vistas.js`: cada vista tiene una dirección y una caja (pórtico, bloque fijo o móvil, operario); `encuadreVista` calcula la distancia exacta en perspectiva para el fov y la proporción del área útil del lienzo (pruebas en `vistas.test.js`). `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar. Al cambiar el tamaño del lienzo (ventana o panel de gráficas) se reencuadra con transición.
+- La cámara es `manual` (R3F no toca su aspecto): `Camaras` aplica `setViewOffset` para que el cuadro de la cámara sea el área sobre la barra de vistas (`FRANJA_INFERIOR`) mientras el lienzo sigue dibujando debajo de ella.
+- "Poleas móviles" sigue al bloque desplazando en Δy el objetivo interno de camera-controls (`_target`/`_targetEnd`) en un `useFrame` de prioridad −2, lo que conserva el giro y el zoom del usuario.
 - `Text` de drei usa la fuente local `@fontsource/inter` (.woff; troika no lee .woff2) dentro de `Suspense`: sin ella, la carga de la fuente desde el CDN suspende toda la escena.
 
 ## Geometría del polipasto (`src/geometria/disposicion.js`)

@@ -5,9 +5,9 @@ import { usarGemelo } from "../../estado/usarGemelo.js";
 import { PESTANAS, buscarPestana, datosGrafica, marcasEventos, esRangoCompleto } from "../../graficas/series.js";
 import GraficaUPlot from "./GraficaUPlot.jsx";
 
-const ALTO_UNA = 190;      // grafica sola [px]
-const ALTO_APILADA = 74;   // cada grafica de "Todas" [px]
-const EJE_TIEMPO = 38;     // espacio extra de la grafica que lleva el eje t
+const ALTO_UNA = 175;      // grafica sola [px]
+const ALTO_APILADA = 62;   // cada grafica de "Todas" [px]
+const EJE_TIEMPO = 44;     // espacio extra de la grafica que lleva el eje t
 
 export default function Graficas() {
   const sim = usarGemelo((s) => s.sim);
@@ -59,8 +59,13 @@ export default function Graficas() {
         </div>
       </header>
 
-      {abierto && (
-        <div className="flex flex-col px-4 pb-2">
+      {/* Se pliega animando la altura: el lienzo 3D crece poco a poco y la camara se reencuadra */}
+      <div
+        className={"grid transition-[grid-template-rows] duration-300 ease-out " +
+          (abierto ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}
+      >
+        <div className="min-h-0 overflow-hidden" inert={!abierto}>
+          <div className="flex flex-col px-4 pb-2">
           {pestana.graficas.map((claves, i) => {
             const ultima = i === pestana.graficas.length - 1;
             const alto = (apiladas ? ALTO_APILADA : ALTO_UNA) + (ultima ? EJE_TIEMPO : 0);
@@ -79,8 +84,9 @@ export default function Graficas() {
               />
             );
           })}
+          </div>
         </div>
-      )}
+      </div>
     </section>
   );
 }
