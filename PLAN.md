@@ -18,7 +18,7 @@ Si algo falla, copiar el error completo de la terminal o de la consola del naveg
 
 ## Fase 0. Arreglar la base y validar la física
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** que el proyecto cargue sin pantalla en blanco, con la estructura de carpetas definitiva y con el motor físico probado automáticamente contra MATLAB.
 
@@ -46,7 +46,7 @@ ecuaciones de fisica.js. Explícame paso a paso qué cambiaste.
 
 ## Fase 1. Estado global y reloj de reproducción
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** un solo lugar donde viven los parámetros, la simulación y el tiempo de reproducción, para que la escena, las gráficas y el panel estén siempre sincronizados.
 

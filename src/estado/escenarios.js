@@ -38,6 +38,12 @@ export const ESCENARIOS = [
     cambios: { F0: 120 },
   },
   {
+    id: "ventaja-mecanica",
+    nombre: "Ventaja mecánica",
+    descripcion: "F0 = 120 N con n = 6: F_min baja a 99.9 N y la carga sí sube (comparar con Fuerza insuficiente).",
+    cambios: { n: 6, F0: 120 },
+  },
+  {
     id: "seis-ramales",
     nombre: "Seis ramales",
     descripcion: "n = 6: menos fuerza por ramal, más cadena recogida.",
