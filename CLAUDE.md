@@ -92,6 +92,14 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - Atajos en `src/hooks/useAtajos.js` (espacio, R, 1-6, flechas, F); no actúan en campos de texto ni selectores, y en un slider solo las flechas son del slider. El medidor de FPS se muestra solo con F.
 - Estilos base en `src/index.css`: fuente Inter (`@fontsource/inter`), utilidad `vidrio` para los paneles.
 
+## Validación con Simulink (`src/utilidades/`)
+
+- `public/datos/datos_mecanismo.csv` es el CSV real exportado de Simulink (parámetros por defecto, misma malla de 1 ms que el gemelo). Las pruebas lo leen; no modificarlo.
+- `csv.js`: `leerCSV` valida encabezados con unidades (t, y, ydot, ydd obligatorios; acepta otro orden, mayúsculas y `;` con coma decimal) y da errores con fila y columna; `alinearConGemelo` interpola si la malla de tiempo difiere. `escribirCSV` exporta con el formato exacto de MATLAB (`%.15g`, exponente de dos dígitos): `Fisica.aCSV` no se usa para descargar porque escribe todos los decimales de JavaScript (p. ej. `0.009000000000000001`).
+- `validacion.js`: RMS sobre todas las muestras y error máximo excluyendo ±5 ms alrededor de t_on, t_off, despegues y aterrizajes; tabla de eventos con el mismo criterio para ambas series. "Validado" si el error máximo de y < 1 mm, los eventos difieren < 2 ms y los parámetros son los por defecto.
+- Las curvas de Simulink se guardan en el estado (`simulink`) ya alineadas con `sim.r.t` y se dibujan punteadas sobre las del gemelo en todas las pestañas.
+- El lienzo usa `preserveDrawingBuffer` para "Capturar escena" (PNG del área libre, sin paneles).
+
 ## Operario (`src/geometria/operario.js`)
 
 - Funciones puras en el marco local del operario (+z hacia la cadena, +x a su izquierda); `ubicacionOperario(disp)` lo coloca del lado +x del tramo libre mirando a −x, y `aMundo` convierte al mundo. El montón está en z = −0.35 para no quedar bajo sus pies.

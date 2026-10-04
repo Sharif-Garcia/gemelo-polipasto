@@ -33,9 +33,18 @@ export function buscarPestana(id) {
   return PESTANAS.find((p) => p.id === id) ?? PESTANAS[0];
 }
 
-// Datos en el formato de uPlot: [t, serie1, serie2, ...] (sin copiar los arreglos)
-export function datosGrafica(sim, claves) {
-  return [sim.r.t, ...claves.map((c) => sim.r[c])];
+// Hay datos de Simulink para todas las variables de la grafica
+export function tieneSimulink(simulink, claves) {
+  return Boolean(simulink) && claves.every((c) => simulink.columnas[c] !== undefined);
+}
+
+/* Datos en el formato de uPlot (sin copiar los arreglos):
+   [t, gemelo1, gemelo2, ..., simulink1, simulink2, ...]; las series de Simulink
+   solo se agregan si existen para todas las variables. */
+export function datosGrafica(sim, claves, simulink = null) {
+  const gemelo = claves.map((c) => sim.r[c]);
+  const externas = tieneSimulink(simulink, claves) ? claves.map((c) => simulink.columnas[c]) : [];
+  return [sim.r.t, ...gemelo, ...externas];
 }
 
 // Etiqueta del eje y: simbolos y unidad comun, p. ej. "u, T [N]"

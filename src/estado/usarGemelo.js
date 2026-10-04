@@ -6,6 +6,7 @@ import { create } from "zustand";
 import { Fisica } from "../fisica/fisica.js";
 import { PARAMETROS_DEFECTO, parametrosDeEscenario } from "./escenarios.js";
 import { acotarValor, ajustarDependientes } from "./parametros.js";
+import { leerCSV, alinearConGemelo } from "../utilidades/csv.js";
 
 export const VELOCIDADES = [0.25, 0.5, 1, 2];
 export const RETARDO_RECALCULO_MS = 60;   // debounce de los sliders
@@ -36,6 +37,21 @@ export const usarGemelo = create((set, get) => ({
   vista: "general",
   solicitudVista: 0,
   setVista: (vista) => set((s) => ({ vista, solicitudVista: s.solicitudVista + 1 })),
+
+  /* Datos de Simulink: columnas alineadas con la malla de tiempo del gemelo */
+  simulink: null,          // { nombre, columnas, interpolado, dt, tMin, tMax, filas, avisos }
+  erroresSimulink: null,   // mensajes si el ultimo archivo no era valido
+  cargarSimulink: (texto, nombre) => {
+    const leido = leerCSV(texto);
+    if (!leido.ok) {
+      set({ erroresSimulink: leido.errores });
+      return false;
+    }
+    const alineado = alinearConGemelo(leido.columnas, get().sim.r.t);
+    set({ simulink: { nombre, filas: leido.filas, avisos: leido.avisos, ...alineado }, erroresSimulink: null });
+    return true;
+  },
+  quitarSimulink: () => set({ simulink: null, erroresSimulink: null }),
 
   /* Interfaz: paneles laterales y medidor de FPS */
   paneles: { parametros: true, valores: true },

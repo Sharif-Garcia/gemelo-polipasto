@@ -13,7 +13,7 @@ export default function Escena() {
     <Canvas
       shadows="percentage"
       dpr={[1, 2]}
-      gl={{ antialias: false }}
+      gl={{ antialias: false, preserveDrawingBuffer: true }}   // preserveDrawingBuffer: captura PNG
       camera={{ fov: 40, near: 0.05, far: 60, position: [5, 3, 6.5], manual: true }}
     >
       <Estudio />

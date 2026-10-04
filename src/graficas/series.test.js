@@ -42,6 +42,16 @@ describe("Pestañas y series", () => {
     for (const serie of datos) expect(serie).toHaveLength(sim.Nt);
   });
 
+  test("con datos de Simulink se agregan despues de las del gemelo", () => {
+    const simulink = { columnas: { u: new Float64Array(sim.Nt), T: new Float64Array(sim.Nt) } };
+    const datos = datosGrafica(sim, ["u", "T"], simulink);
+    expect(datos).toHaveLength(5);
+    expect(datos[3]).toBe(simulink.columnas.u);
+    expect(datos[4]).toBe(simulink.columnas.T);
+    // Si falta una variable en el CSV no se superpone nada en esa grafica
+    expect(datosGrafica(sim, ["N"], simulink)).toHaveLength(2);
+  });
+
   test("la etiqueta del eje lleva simbolos y unidad", () => {
     expect(etiquetaEje(["u", "T"])).toBe("u, T [N]");
     expect(etiquetaEje(["ydd"])).toBe("ÿ [m/s²]");

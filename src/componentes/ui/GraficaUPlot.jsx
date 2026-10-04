@@ -15,6 +15,10 @@ const REJILLA = "#e8e7e3";      // un paso sobre la superficie
 const MARCA = "#b3b1aa";
 const FUENTE = "11px system-ui, sans-serif";
 const FACTOR_RUEDA = 1.15;
+const SIMULINK = { color: "#262624", trazo: [5, 4] };   // curvas de Simulink: punteadas, encima
+
+// Valor con el formato de la variable; sin dato (fuera del CSV) se muestra una raya
+const texto = (v, decimales) => (Number.isFinite(v) ? v.toFixed(decimales) : "—");
 
 // Marcas de los ejes con punto decimal, como el resto de la interfaz
 const formatoPunto = (u, splits) => splits.map((v) => String(Number(v.toPrecision(6))));
@@ -49,7 +53,8 @@ function dibujarMarcas(u, marcas, conEtiqueta) {
 }
 
 export default function GraficaUPlot({
-  claves, datos, marcas, rango, alto, ejeTiempo = true, etiquetasMarcas = true, compacta = false, onZoom,
+  claves, datos, marcas, rango, alto, ejeTiempo = true, etiquetasMarcas = true, compacta = false,
+  conSimulink = false, onZoom,
 }) {
   const contenedor = useRef(null);
   const leyenda = useRef(null);
@@ -99,6 +104,9 @@ export default function GraficaUPlot({
         ...vars.map((v) => ({
           label: v.simbolo, stroke: v.color, width: 2, dash: v.trazo, points: { show: false },
         })),
+        ...(conSimulink ? vars.map((v) => ({
+          label: `${v.simbolo} Simulink`, stroke: SIMULINK.color, width: 1.5, dash: SIMULINK.trazo, points: { show: false },
+        })) : []),
       ],
       hooks: {
         draw: [(u) => dibujarMarcas(u, ultimos.current.marcas, etiquetasMarcas)],
@@ -135,7 +143,10 @@ export default function GraficaUPlot({
         const valor = d[k + 1][indice];
         puntos[k].style.display = visible ? "" : "none";
         puntos[k].style.transform = `translate(${x}px, ${u.valToPos(valor, "y")}px)`;
-        if (celdas[k]) celdas[k].textContent = valor.toFixed(v.decimales);
+        if (celdas[k]) celdas[k].textContent = texto(valor, v.decimales);
+        if (conSimulink && celdas[vars.length + k]) {
+          celdas[vars.length + k].textContent = texto(d[vars.length + k + 1][indice], v.decimales);
+        }
       });
     };
     pintar.current(usarGemelo.getState());
@@ -146,9 +157,12 @@ export default function GraficaUPlot({
       const i = uu.cursor.idx;
       if (i == null || arrastre) { ayuda.classList.add("hidden"); return; }
       ayuda.classList.remove("hidden");
-      const texto = [`t = ${uu.data[0][i].toFixed(3)} s`]
-        .concat(vars.map((v, k) => `${v.simbolo} = ${uu.data[k + 1][i].toFixed(v.decimales)} ${v.unidad}`));
-      ayuda.textContent = texto.join("   ");
+      const lineas = [`t = ${uu.data[0][i].toFixed(3)} s`]
+        .concat(vars.map((v, k) => `${v.simbolo} = ${texto(uu.data[k + 1][i], v.decimales)} ${v.unidad}`))
+        .concat(conSimulink
+          ? vars.map((v, k) => `Simulink ${v.simbolo} = ${texto(uu.data[vars.length + k + 1][i], v.decimales)}`)
+          : []);
+      ayuda.textContent = lineas.join("   ");
       const izquierda = uu.cursor.left > uu.over.clientWidth / 2;
       ayuda.style.left = izquierda ? "" : `${uu.cursor.left + 10}px`;
       ayuda.style.right = izquierda ? `${uu.over.clientWidth - uu.cursor.left + 10}px` : "";
@@ -218,7 +232,7 @@ export default function GraficaUPlot({
       plot.current = null;
     };
     // alto, datos y rango se aplican en sus propios efectos
-  }, [clave, ejeTiempo, etiquetasMarcas, compacta]);
+  }, [clave, ejeTiempo, etiquetasMarcas, compacta, conSimulink]);
 
   // Datos nuevos (al mover un parametro): sin recrear la grafica ni perder el zoom
   useEffect(() => {
@@ -261,6 +275,19 @@ export default function GraficaUPlot({
                   strokeDasharray={v.trazo ? v.trazo.join(" ") : undefined} strokeLinecap="round" />
               </svg>
               <span className="text-neutral-600">{v.nombre} {v.simbolo}</span>
+              <span className="min-w-[4.5rem] text-right font-mono tabular-nums text-neutral-900" data-valor="" />
+              <span className="text-neutral-500">{v.unidad}</span>
+            </div>
+          );
+        })}
+        {conSimulink && claves.map((c) => {
+          const v = VARIABLES[c];
+          return (
+            <div key={`simulink-${c}`} className="flex items-center gap-1.5">
+              <svg width="16" height="6" className="shrink-0" aria-hidden="true">
+                <line x1="0" y1="3" x2="16" y2="3" stroke={SIMULINK.color} strokeWidth="1.5" strokeDasharray="4 3" />
+              </svg>
+              <span className="text-neutral-600">Simulink {v.simbolo}</span>
               <span className="min-w-[4.5rem] text-right font-mono tabular-nums text-neutral-900" data-valor="" />
               <span className="text-neutral-500">{v.unidad}</span>
             </div>
