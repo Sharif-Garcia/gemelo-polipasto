@@ -1,11 +1,11 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
-import { Fisica } from "./fisica/fisica.js";
-
-// Simulacion con los parametros por defecto (los mismos de MATLAB)
-const sim = Fisica.simular();
+import { useReloj } from "./hooks/useReloj.js";
+import PanelDepuracion from "./componentes/ui/PanelDepuracion.jsx";
 
 export default function App() {
+  useReloj();
+
   return (
     <div className="relative h-screen w-screen bg-neutral-200">
       {/* Escena 3D de prueba */}
@@ -24,18 +24,7 @@ export default function App() {
         <OrbitControls makeDefault />
       </Canvas>
 
-      {/* Panel de verificacion */}
-      <div className="absolute left-6 top-6 rounded-2xl bg-white/80 p-5 shadow-xl backdrop-blur">
-        <h1 className="text-lg font-semibold text-neutral-800">
-          Gemelo digital del polipasto
-        </h1>
-        <p className="mt-2 text-sm text-neutral-600">Prueba de instalacion</p>
-        <div className="mt-3 space-y-1 font-mono text-sm">
-          <p>M_eq = {sim.d.M_eq.toFixed(2)} kg</p>
-          <p>y max = {sim.eventos.y_max.toFixed(4)} m</p>
-          <p>Aterrizaje = {sim.eventos.aterrizaje.toFixed(3)} s</p>
-        </div>
-      </div>
+      <PanelDepuracion />
     </div>
   );
 }

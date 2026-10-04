@@ -51,6 +51,13 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `Fisica.indice(sim, t)` convierte un tiempo de reproducción en índice de muestra; así se sincronizan escena, gráficas y panel (todos leen `sim.r[...][indice]`).
 - `Fisica.aCSV(sim)` genera el CSV con el formato de Simulink.
 
+## Estado y reloj
+
+- `usarGemelo` guarda `parametros`, `sim`, `escenario` y el reloj (`t`, `indice`, `reproduciendo`, `velocidad`, `bucle`). La lógica del reloj vive en la acción `avanzar(dtReal)`; `useReloj` (montado una sola vez en `App`) solo la llama desde `requestAnimationFrame`.
+- `setParametro` recalcula con debounce (`RETARDO_RECALCULO_MS`); en pruebas usar `vi.useFakeTimers()` o llamar `recalcular()`.
+- `t` e `indice` cambian en cada cuadro: nunca leerlos con un selector de React. Usar `usarGemelo.getState()` dentro de `useFrame`, o `usarGemelo.subscribe` + refs para el DOM (ver `PanelDepuracion.jsx`).
+- Los escenarios (`src/estado/escenarios.js`) son solo los cambios respecto a `PARAMETROS_DEFECTO`.
+
 
 ## Modelo físico (NO modificar sin pedirlo)
 
