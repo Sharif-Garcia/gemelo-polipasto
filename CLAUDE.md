@@ -100,6 +100,13 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - Las curvas de Simulink se guardan en el estado (`simulink`) ya alineadas con `sim.r.t` y se dibujan punteadas sobre las del gemelo en todas las pestañas.
 - "Capturar escena" (`Capturador.jsx`, dentro del lienzo) genera un PNG de 1920×1080 con la misma cámara en 16:9: cambia el tamaño del búfer, dibuja con el `EffectComposer` (ref desde `Escena`), lee el lienzo (`preserveDrawingBuffer`) y restaura tamaño y `setViewOffset` (`aplicarCuadroCamara`) en el mismo paso.
 
+## Modo análisis (`src/analisis/`, `src/componentes/escena/ModoAnalisis.jsx`)
+
+- `fuerzas.js` (puro, con pruebas): `evaluarEcuacion` (términos de M_eq·ydd = n·u − μ·n·u·sgn(ydot) − M_t·g − b·ydot + N con sgn = tanh(ydot/v_s); en el tope superior el modelo fija ydd = 0 con N = 0 y la diferencia se muestra como `R_tope`), `fuerzasBloque`, `escalaFuerzas` (escala común: la fuerza mayor de la simulación mide `LARGO_MAX_FLECHA`), `tensionesRamales` (T_j de este archivo) y el color divergente de T_j − u (escala de raíz cuadrada).
+- `modo` en el estado ("estudio" / "analisis", tecla A). `aplicarModoMateriales` vuelve semitransparentes pórtico, bloques y operario; la cadena pasa a mate claro y `Cadena.jsx` colorea cada ramal con `setColorAt` (`ramalDePunto` usa el índice de segmento de `puntoCadena`).
+- Etiquetas 3D (`Etiqueta3D`, texto de troika: salen en las capturas) de tamaño fijo en píxeles. `DiagramaFuerzas` y `CotasAnalisis` piden sus etiquetas en cada cuadro y `ModoAnalisis` las proyecta, las separa con `acomodarEtiquetas` y las devuelve a 3D. Durante la captura, `pantalla.js` hace que se midan para 1920×1080.
+- En modo análisis el panel derecho muestra `PanelAnalisis` (ecuación con números y verificación, fuerzas, T_j con barra de colores, escala).
+
 ## Operario (`src/geometria/operario.js`)
 
 - Funciones puras en el marco local del operario (+z hacia la cadena, +x a su izquierda); `ubicacionOperario(disp)` lo coloca del lado +x del tramo libre mirando a −x, y `aMundo` convierte al mundo. El montón está en z = −0.35 para no quedar bajo sus pies.

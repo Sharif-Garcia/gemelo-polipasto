@@ -1,11 +1,14 @@
 /* Cadena de eslabones con InstancedMesh. Cada eslabon conserva su coordenada
    material; en cada cuadro se coloca sobre la trayectoria de disposicion.js y
-   los eslabones consecutivos alternan 90° alrededor de la tangente. */
+   los eslabones consecutivos alternan 90° alrededor de la tangente.
+   En modo analisis cada ramal se colorea segun T_j - u (barra de colores del
+   panel de analisis); el tramo libre y el monton quedan en gris (T = u). */
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Curve, Matrix4, TubeGeometry, Vector3 } from "three";
+import { Color, Curve, Matrix4, TubeGeometry, Vector3 } from "three";
 import { usarGemelo } from "../../estado/usarGemelo.js";
-import { recorrerCadena, DIMENSIONES } from "../../geometria/disposicion.js";
+import { recorrerCadena, ramalDePunto, DIMENSIONES } from "../../geometria/disposicion.js";
+import { tensionesRamales, rangoDiferenciaTension, colorDiferencia } from "../../analisis/fuerzas.js";
 import { MATERIALES } from "./materiales.js";
 
 // Linea media de un eslabon ovalado (estadio) en el plano xy, eje largo en x
@@ -42,21 +45,36 @@ function crearGeometriaEslabon() {
 
 const t = new Vector3(), w = new Vector3(), b = new Vector3(), ref = new Vector3();
 const matriz = new Matrix4();
+const color = new Color();
+const BLANCO = new Color(1, 1, 1);
+const colores = [];   // color de cada ramal (0 = tramo libre)
 
 export default function Cadena({ disp }) {
   const malla = useRef(null);
   const geometria = useMemo(() => crearGeometriaEslabon(), []);
-  const ultimaY = useRef(NaN);
+  const ultimo = useRef("");
+  const sim = usarGemelo((s) => s.sim);
+  const rango = useMemo(() => rangoDiferenciaTension(sim), [sim]);
 
   useEffect(() => {
-    ultimaY.current = NaN;   // forzar la actualizacion con la nueva disposicion
-  }, [disp]);
+    ultimo.current = "";   // forzar la actualizacion con la nueva disposicion
+  }, [disp, rango]);
 
   useFrame(() => {
-    const { sim, indice } = usarGemelo.getState();
+    const { indice, modo } = usarGemelo.getState();
     const y = sim.r.y[indice];
-    if (y === ultimaY.current || !malla.current) return;
-    ultimaY.current = y;
+    const analisis = modo === "analisis";
+    // En analisis los colores cambian con ydd aunque y no cambie
+    const clave = analisis ? `a${indice}` : `e${y}`;
+    if (clave === ultimo.current || !malla.current) return;
+    ultimo.current = clave;
+
+    if (analisis) {
+      const T = tensionesRamales(sim, indice);
+      const u = sim.r.u[indice];
+      colores[0] = colorDiferencia(0, rango);
+      T.forEach((Tj, j) => { colores[j + 1] = colorDiferencia(Tj - u, rango); });
+    }
 
     recorrerCadena(disp, y, (i, punto) => {
       t.fromArray(punto.t);
@@ -67,8 +85,10 @@ export default function Cadena({ disp }) {
       b.crossVectors(t, w);
       matriz.makeBasis(t, w, b).setPosition(punto.p[0], punto.p[1], punto.p[2]);
       malla.current.setMatrixAt(i, matriz);
+      malla.current.setColorAt(i, analisis ? color.fromArray(colores[ramalDePunto(punto, disp.n)]) : BLANCO);
     });
     malla.current.instanceMatrix.needsUpdate = true;
+    malla.current.instanceColor.needsUpdate = true;
   });
 
   return (

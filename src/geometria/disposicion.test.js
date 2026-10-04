@@ -2,7 +2,7 @@
 import { describe, test, expect } from "vitest";
 import { Fisica } from "../fisica/fisica.js";
 import {
-  crearDisposicion, estadoCadena, puntoCadena, anguloPolea, conoMonton, DIMENSIONES,
+  crearDisposicion, estadoCadena, puntoCadena, anguloPolea, conoMonton, ramalDePunto, sigmaMano, DIMENSIONES,
 } from "./disposicion.js";
 
 const VALORES_N = [2, 3, 4, 5, 6];
@@ -61,6 +61,24 @@ describe.each(VALORES_N)("n = %i", (n) => {
       const v = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / dy;
       expect(v).toBeCloseTo(c[j - 1], 4);
     }
+  });
+
+  test("sigmaMano: el punto de la mano esta a H_mano y baja s = n*y por la cadena", () => {
+    const e = estadoCadena(disp, 0.5);
+    const q = puntoCadena(e, sigmaMano(disp, 0.5)).p;
+    expect(q[0]).toBeCloseTo(disp.mano.x, 9);
+    expect(q[1]).toBeCloseTo(disp.mano.y, 9);
+    expect(sigmaMano(disp, 0) - sigmaMano(disp, 0.5)).toBeCloseTo(n * 0.5, 9);
+  });
+
+  test("cada punto de un ramal sabe a que ramal pertenece", () => {
+    const y = 0.8;
+    const e = estadoCadena(disp, y);
+    const sep = disp.H_fijo - (DIMENSIONES.H_movil0 + y);
+    const tramo = sep + Math.PI * disp.r;
+    for (let j = 1; j <= n; j++) expect(ramalDePunto(puntoCadena(e, (j - 1) * tramo + sep / 2), n)).toBe(j);
+    expect(ramalDePunto(puntoCadena(e, n * tramo + 0.1), n)).toBe(0);   // tramo libre
+    expect(ramalDePunto(puntoCadena(e, disp.L_total - 0.01), n)).toBe(0); // monton
   });
 
   test("la polea k gira con omega_k = k*ydot/r_polea", () => {

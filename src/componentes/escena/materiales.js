@@ -24,3 +24,25 @@ export const MATERIALES = {
   // Carga de acero pintada
   carga: new MeshStandardMaterial({ color: "#3a3f47", metalness: 0.55, roughness: 0.48 }),
 };
+
+/* Modo analisis: portico, bloques y operario semitransparentes; cadena, gancho y
+   carga opacos. La cadena pasa a un acabado mate claro para que se vean los
+   colores de tension por ramal (los multiplica el color de cada instancia). */
+const TRANSPARENTES = { viga: 0.5, bloque: 0.62, polea: 0.62, eje: 0.62, hueco: 0.62, maniqui: 0.42, articulacion: 0.42 };
+const CADENA_ESTUDIO = { color: MATERIALES.cadena.color.getHex(), metalness: MATERIALES.cadena.metalness, roughness: MATERIALES.cadena.roughness };
+
+export function aplicarModoMateriales(analisis) {
+  for (const [nombre, opacidad] of Object.entries(TRANSPARENTES)) {
+    const m = MATERIALES[nombre];
+    m.transparent = analisis;
+    m.opacity = analisis ? opacidad : 1;
+    m.depthWrite = !analisis;
+    m.needsUpdate = true;
+  }
+  const c = MATERIALES.cadena;
+  c.color.setHex(analisis ? 0xffffff : CADENA_ESTUDIO.color);
+  c.metalness = analisis ? 0.15 : CADENA_ESTUDIO.metalness;
+  c.roughness = analisis ? 0.5 : CADENA_ESTUDIO.roughness;
+  c.needsUpdate = true;
+}
+

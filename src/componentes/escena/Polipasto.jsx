@@ -7,6 +7,7 @@ import BloqueFijo from "./BloqueFijo.jsx";
 import BloqueMovil from "./BloqueMovil.jsx";
 import Cadena from "./Cadena.jsx";
 import Operario from "./Operario.jsx";
+import ModoAnalisis from "./ModoAnalisis.jsx";
 
 export default function Polipasto() {
   const p = usarGemelo((s) => s.sim.p);
@@ -19,6 +20,7 @@ export default function Polipasto() {
       <BloqueMovil disp={disp} M={p.M} />
       <Cadena disp={disp} />
       <Operario />
+      <ModoAnalisis disp={disp} />
     </group>
   );
 }

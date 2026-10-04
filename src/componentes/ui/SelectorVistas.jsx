@@ -7,11 +7,13 @@ export default function SelectorVistas() {
   const vista = usarGemelo((s) => s.vista);
   const setVista = usarGemelo((s) => s.setVista);
   const paneles = usarGemelo((s) => s.paneles);
+  const modo = usarGemelo((s) => s.modo);
+  const alternarModo = usarGemelo((s) => s.alternarModo);
   const { izquierda, derecha } = bordesLaterales(paneles);
 
   return (
     <div
-      className="pointer-events-none absolute flex justify-center"
+      className="pointer-events-none absolute flex justify-center gap-2"
       style={{ left: izquierda, right: derecha, top: MEDIDAS.margen }}
     >
       <nav
@@ -35,6 +37,28 @@ export default function SelectorVistas() {
           </button>
         ))}
       </nav>
+      {/* Estudio / Analisis (tecla A) */}
+      <div
+        className="vidrio pointer-events-auto flex gap-0.5 p-1"
+        style={{ height: MEDIDAS.altoVistas }}
+        role="group"
+        aria-label="Modo de la escena"
+      >
+        {[["estudio", "Estudio"], ["analisis", "Análisis"]].map(([id, nombre]) => (
+          <button
+            key={id}
+            onClick={() => modo !== id && alternarModo()}
+            aria-pressed={modo === id}
+            title={`${nombre} (tecla A)`}
+            className={
+              "whitespace-nowrap rounded-xl px-2.5 text-[13px] transition-colors " +
+              (modo === id ? "bg-neutral-900 text-white" : "text-neutral-700 hover:bg-neutral-900/5")
+            }
+          >
+            {nombre}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

@@ -53,6 +53,10 @@ export const usarGemelo = create((set, get) => ({
   },
   quitarSimulink: () => set({ simulink: null, erroresSimulink: null }),
 
+  /* Modo de la escena: "estudio" (presentacion) o "analisis" (fuerzas, tensiones y cotas) */
+  modo: "estudio",
+  alternarModo: () => set((s) => ({ modo: s.modo === "estudio" ? "analisis" : "estudio" })),
+
   /* Captura PNG de la escena en 1920x1080 (la atiende Capturador.jsx) */
   solicitudCaptura: 0,
   capturarEscena: () => set((s) => ({ solicitudCaptura: s.solicitudCaptura + 1 })),

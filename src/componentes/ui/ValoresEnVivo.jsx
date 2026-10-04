@@ -6,6 +6,7 @@ import { usarGemelo } from "../../estado/usarGemelo.js";
 import { Fisica } from "../../fisica/fisica.js";
 import { MEDIDAS } from "./medidas.js";
 import PanelLateral from "./PanelLateral.jsx";
+import PanelAnalisis from "./PanelAnalisis.jsx";
 import FilaValor from "./FilaValor.jsx";
 
 const INSTANTANEOS = [
@@ -35,8 +36,10 @@ export default function ValoresEnVivo() {
   const celdas = useRef({});
   const d = Fisica.derivados({ ...Fisica.PARAMETROS_BASE, ...parametros });
 
+  const analisis = usarGemelo((s) => s.modo === "analisis");
+
   useEffect(() => {
-    if (!abierto) return undefined;
+    if (!abierto || analisis) return undefined;
     const pintar = ({ sim, indice, t }) => {
       for (const f of INSTANTANEOS) {
         const celda = celdas.current[f.clave];
@@ -46,7 +49,10 @@ export default function ValoresEnVivo() {
     };
     pintar(usarGemelo.getState());
     return usarGemelo.subscribe(pintar);
-  }, [abierto]);
+  }, [abierto, analisis]);
+
+  // En modo analisis el panel derecho muestra la ecuacion, las fuerzas y las tensiones
+  if (analisis) return <PanelAnalisis />;
 
   return (
     <PanelLateral

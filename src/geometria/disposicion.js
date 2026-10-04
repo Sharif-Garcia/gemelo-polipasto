@@ -104,11 +104,19 @@ function evaluarTrayecto(tr, s, out) {
     const mid = (lo + hi + 1) >> 1;
     if (tr.acum[mid] <= sAcotado) lo = mid; else hi = mid - 1;
   }
+  out.segmento = lo;
   return evaluarSegmento(tr.segmentos[lo], sAcotado - tr.acum[lo], out);
 }
 
+// segmento: indice en el trayecto principal (-1 en el monton). En la cadena, los
+// segmentos 2(j-1) y 2(j-1)+1 son el ramal j y su arco sobre la polea j.
 export function nuevoPunto() {
-  return { p: [0, 0, 0], t: [0, 1, 0], ref: Z };
+  return { p: [0, 0, 0], t: [0, 1, 0], ref: Z, segmento: -1 };
+}
+
+// Ramal (1..n) de un punto de la cadena, o 0 si esta en el tramo libre o el monton
+export function ramalDePunto(punto, n) {
+  return punto.segmento >= 0 && punto.segmento < 2 * n ? Math.floor(punto.segmento / 2) + 1 : 0;
 }
 
 function distancia(a, b) {
@@ -279,6 +287,12 @@ export function anguloPolea(polea, y, r_polea) {
   return (polea.giro * polea.k * y) / r_polea;
 }
 
+// Coordenada material del punto de la cadena que esta en la mano con la posicion y.
+// Al subir la carga disminuye en n*y: el eslabon que estaba en la mano baja s = n*y.
+export function sigmaMano(disp, y) {
+  return largoFijo(disp, y);
+}
+
 export function estadoCadena(disp, y) {
   const { n, r, H_fijo, poleas, ramales, amarre, mano, centroMonton } = disp;
   const Hm = alturaBloqueMovil(y);
@@ -328,6 +342,7 @@ export function puntoCadena(estado, sigma, out = nuevoPunto()) {
   // Distancia al extremo final (fija para cada eslabon) e indice del eslabon
   const reciente = sigma - principal.L;
   const i = Math.floor(sigma / DIMENSIONES.paso);
+  out.segmento = -1;
   return puntoMonton(centroMonton, largoMonton - reciente, reciente, i, out);
 }
 
