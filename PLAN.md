@@ -110,7 +110,7 @@ propia. Deja un cubo de referencia de 1 m para verificar la escala.
 
 ## Fase 3. Polipasto paramétrico
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** el mecanismo completo en 3D, construido por código y que cambia automáticamente con n.
 

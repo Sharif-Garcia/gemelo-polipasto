@@ -2,7 +2,7 @@
 import { describe, test, expect } from "vitest";
 import { Fisica } from "../fisica/fisica.js";
 import {
-  crearDisposicion, estadoCadena, puntoCadena, anguloPolea, DIMENSIONES,
+  crearDisposicion, estadoCadena, puntoCadena, anguloPolea, conoMonton, DIMENSIONES,
 } from "./disposicion.js";
 
 const VALORES_N = [2, 3, 4, 5, 6];
@@ -68,6 +68,51 @@ describe.each(VALORES_N)("n = %i", (n) => {
       const omega = (anguloPolea(q, 1.0, p.r_polea) - anguloPolea(q, 0.9, p.r_polea)) / 0.1;
       expect(Math.abs(omega)).toBeCloseTo(q.k / p.r_polea, 9);
     }
+  });
+
+  test("el monton crece en radio y altura con la cadena recogida", () => {
+    let anterior = conoMonton(0);
+    for (const y of ys.slice(1)) {
+      const actual = conoMonton(estadoCadena(disp, y).largoMonton);
+      expect(actual.R).toBeGreaterThan(anterior.R);
+      expect(actual.H).toBeGreaterThan(anterior.H);
+      anterior = actual;
+    }
+  });
+
+  test("los eslabones asentados en el monton no se mueven al cambiar y", () => {
+    const e0 = estadoCadena(disp, 0);
+    const e1 = estadoCadena(disp, 1.0);
+    // Cerca del extremo final: en el monton en ambos instantes y ya asentado
+    const sigma = disp.L_total - 0.3 * DIMENSIONES.largo_monton0;
+    const a = puntoCadena(e0, sigma).p;
+    const b = puntoCadena(e1, sigma).p;
+    expect(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])).toBeLessThan(1e-12);
+  });
+
+  test("los eslabones del monton quedan dentro del cono y sobre el piso", () => {
+    const e = estadoCadena(disp, 1.6388);
+    const { R, H } = conoMonton(e.largoMonton);
+    for (let i = 0; i < disp.numEslabones; i++) {
+      const sigma = (i + 0.5) * DIMENSIONES.paso;
+      if (sigma <= e.principal.L) continue;
+      const { p: q } = puntoCadena(e, sigma);
+      expect(Math.hypot(q[0] - e.centroMonton[0], q[2] - e.centroMonton[2])).toBeLessThanOrEqual(R + 1e-9);
+      expect(q[1]).toBeGreaterThan(0);
+      expect(q[1]).toBeLessThanOrEqual(H + DIMENSIONES.ancho_eslabon);
+    }
+  });
+
+  test("el tramo libre baja vertical hasta la mano y la curva sale vertical", () => {
+    const e = estadoCadena(disp, 0.5);
+    const sigmaMano = e.principal.L - (e.tramoLibre - e.largoMonton) + (disp.H_fijo - disp.mano.y);
+    const arriba = puntoCadena(e, sigmaMano - 0.05);
+    expect(arriba.p[0]).toBeCloseTo(disp.mano.x, 9);
+    expect(arriba.t[1]).toBeCloseTo(-1, 9);
+    const abajo = puntoCadena(e, sigmaMano + 0.01);
+    expect(abajo.t[1]).toBeLessThan(-0.95);          // continua casi vertical
+    const fin = puntoCadena(e, e.principal.L).p;     // termina en la cima del monton
+    expect(Math.hypot(fin[0] - e.cima[0], fin[1] - e.cima[1], fin[2] - e.cima[2])).toBeLessThan(1e-9);
   });
 
   test("la carga no invade el tramo libre", () => {

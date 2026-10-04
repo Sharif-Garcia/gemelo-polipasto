@@ -12,6 +12,13 @@
    c_j*ydot sin integrar velocidades, y la longitud total es constante: lo que
    pierden los n ramales (n*y) se acumula en el tramo libre.
 
+   Tramo libre: vertical desde la ultima polea hasta la mano (H_fijo - L1),
+   curva suave hasta la cima del monton y monton conico en el piso. Cada
+   eslabon del monton se ubica segun su distancia lambda al extremo final
+   (fija para cada eslabon), sobre la superficie del cono de "largo" lambda,
+   con angulo, radio y giro pseudoaleatorios: los eslabones nuevos caen encima
+   de los anteriores y ninguno cambia de lugar mientras esta en el monton.
+
    Ejes: x a la derecha, y hacia arriba, z hacia la camara frontal. Las poleas
    y los ramales estan en el plano z = 0.
    ========================================================================= */
@@ -28,13 +35,13 @@ export const DIMENSIONES = {
   ancho_eslabon: 0.0185,  // ancho exterior del eslabon [m]
   mano_min: 0.5,          // altura minima de la mano [m]
   largo_monton0: 0.8,     // cadena en el piso con y = 0 [m]
+  segmentos_curva: 24,    // tramos rectos de la curva mano-monton
   monton: {
-    separacion_x: 0.12,   // del tramo libre al inicio del monton [m]
-    largo_fila: 0.42,
-    separacion_filas: 0.035,
-    filas_por_capa: 14,
-    z_inicio: -0.35,
-    alto_capa: 0.011,
+    separacion_x: 0.28,   // del tramo libre al centro del monton [m]
+    radio_min: 0.015,     // radio del cono con lambda = 0 [m]
+    talud: 0.45,          // altura / radio del cono
+    volumen_por_metro: 1.5e-4, // volumen aparente de 1 m de cadena amontonada [m^3/m]
+    asentamiento: 0.15,   // cadena recien caida que aun se desliza desde la cima [m]
   },
 };
 
@@ -101,30 +108,75 @@ export function nuevoPunto() {
   return { p: [0, 0, 0], t: [0, 1, 0], ref: Z };
 }
 
-/* ---------- Monton de cadena en el piso ---------- */
+function distancia(a, b) {
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+}
 
-// Trayecto en zigzag medido desde el extremo final de la cadena (fijo en el piso).
-function crearMonton(xInicio, largoNecesario) {
+/* ---------- Monton conico ---------- */
+
+// Radio y altura del cono que forman lambda metros de cadena
+export function conoMonton(lambda) {
   const m = DIMENSIONES.monton;
-  const yBase = DIMENSIONES.ancho_eslabon / 2;
-  const porFila = m.largo_fila + m.separacion_filas;
-  const filas = Math.ceil(largoNecesario / porFila) + 2;
+  const v = Math.max(lambda, 0) * m.volumen_por_metro;
+  const R = m.radio_min + Math.cbrt((3 * v) / (Math.PI * m.talud));
+  return { R, H: m.talud * R };
+}
+
+// Numero pseudoaleatorio en [0, 1) reproducible a partir de (i, k)
+function aleatorio(i, k) {
+  let h = Math.imul(i ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(k + 1, 0xc2b2ae35);
+  h = Math.imul(h ^ (h >>> 16), 0x7feb352d);
+  h = Math.imul(h ^ (h >>> 15), 0x846ca68b);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+// Eslabon numero i (desde el amarre), a lambda metros del extremo final y que
+// cayo hace 'reciente' metros: llega por la cima y se desliza hasta su lugar.
+function puntoMonton(centro, lambda, reciente, i, out) {
+  const { R, H } = conoMonton(lambda);
+  const asentado = Math.min(1, reciente / DIMENSIONES.monton.asentamiento);
+  const u = Math.sqrt(aleatorio(i, 0)) * asentado;   // reparto uniforme en el circulo
+  const ang = 2 * Math.PI * aleatorio(i, 1);
+  const rho = R * u;
+  out.p[0] = centro[0] + rho * Math.cos(ang);
+  out.p[1] = DIMENSIONES.ancho_eslabon / 2 + H * (1 - u);
+  out.p[2] = centro[2] + rho * Math.sin(ang);
+
+  const giro = 2 * Math.PI * aleatorio(i, 2);
+  const inclinacion = (aleatorio(i, 3) - 0.5) * 1.1;   // ±0.55 rad
+  const c = Math.cos(inclinacion);
+  out.t[0] = Math.cos(giro) * c;
+  out.t[1] = Math.sin(inclinacion);
+  out.t[2] = Math.sin(giro) * c;
+  out.ref = Y;
+  return out;
+}
+
+/* ---------- Curva de la mano al monton ---------- */
+
+// Bezier cubica: sale vertical de la mano y cae vertical sobre la cima
+function puntosCurva(mano, cima) {
+  const caida = mano[1] - cima[1];
+  const P1 = [mano[0], mano[1] - 0.55 * caida, mano[2]];
+  const P2 = [cima[0], cima[1] + 0.3 * caida, cima[2]];
+  const N = DIMENSIONES.segmentos_curva;
   const puntos = [];
-  for (let i = 0; i < filas; i++) {
-    const capa = Math.floor(i / m.filas_por_capa);
-    const fila = i % m.filas_por_capa;
-    const indiceZ = capa % 2 === 0 ? fila : m.filas_por_capa - 1 - fila;
-    const z = m.z_inicio + indiceZ * m.separacion_filas;
-    const y = yBase + capa * m.alto_capa;
-    const x0 = i % 2 === 0 ? xInicio : xInicio + m.largo_fila;
-    const x1 = i % 2 === 0 ? xInicio + m.largo_fila : xInicio;
-    puntos.push([x0, y, z], [x1, y, z]);
+  for (let i = 0; i <= N; i++) {
+    const s = i / N, r = 1 - s;
+    const a = r * r * r, b = 3 * r * r * s, c = 3 * r * s * s, d = s * s * s;
+    puntos.push([0, 1, 2].map((e) => a * mano[e] + b * P1[e] + c * P2[e] + d * cima[e]));
   }
-  const segmentos = [];
-  for (let i = 0; i < puntos.length - 1; i++) {
-    segmentos.push(recta(puntos[i], puntos[i + 1], Y));
-  }
-  return crearTrayecto(segmentos);
+  return puntos;
+}
+
+function largoPolilinea(puntos) {
+  let L = 0;
+  for (let i = 1; i < puntos.length; i++) L += distancia(puntos[i - 1], puntos[i]);
+  return L;
+}
+
+function cimaMonton(centro, largo) {
+  return [centro[0], DIMENSIONES.ancho_eslabon / 2 + conoMonton(largo).H, centro[2]];
 }
 
 /* ---------- Disposicion fija ---------- */
@@ -182,22 +234,28 @@ export function crearDisposicion(p) {
 
   const viga = { yInferior: H_fijo + bloques.medioAlto + D.suspension_fijo };
 
-  const largoMax = D.largo_monton0 + n * D0 + 1;
-  const monton = crearMonton(xLibre + D.monton.separacion_x, largoMax);
+  const centroMonton = [xLibre + D.monton.separacion_x, 0, 0];
 
   const disp = {
-    n, r, D0, H_fijo, poleas, amarre, ramales, xLibre, bloques, mano, carga, viga, monton,
+    n, r, D0, H_fijo, poleas, amarre, ramales, xLibre, bloques, mano, carga, viga, centroMonton,
+    // El monton nunca supera lo que cabe en los ramales mas el monton inicial
+    largoMontonMax: D.largo_monton0 + n * D0,
   };
 
   // Longitud total con y = 0 y el monton inicial
-  const Q = evaluarTrayecto(monton, D.largo_monton0, nuevoPunto()).p;
-  disp.L_total = largoFijo(disp, 0) + distancia([mano.x, mano.y, mano.z], Q) + D.largo_monton0;
+  const pm = [mano.x, mano.y, mano.z];
+  disp.L_total = largoFijo(disp, 0)
+    + largoPolilinea(puntosCurva(pm, cimaMonton(centroMonton, D.largo_monton0)))
+    + D.largo_monton0;
   disp.numEslabones = Math.floor(disp.L_total / D.paso);
   return disp;
 }
 
-function distancia(a, b) {
-  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+// Una sola disposicion por objeto de parametros (la comparten escena y camaras)
+const cache = new WeakMap();
+export function obtenerDisposicion(p) {
+  if (!cache.has(p)) cache.set(p, crearDisposicion(p));
+  return cache.get(p);
 }
 
 // Ramales + arcos + tramo vertical hasta la mano
@@ -219,7 +277,7 @@ export function anguloPolea(polea, y, r_polea) {
 }
 
 export function estadoCadena(disp, y) {
-  const { n, r, H_fijo, poleas, ramales, amarre, mano, monton } = disp;
+  const { n, r, H_fijo, poleas, ramales, amarre, mano, centroMonton } = disp;
   const Hm = alturaBloqueMovil(y);
   const segmentos = [];
 
@@ -234,42 +292,40 @@ export function estadoCadena(disp, y) {
     x = q.x + r;
     yy = Hq;
   }
-  segmentos.push(recta([x, H_fijo, 0], [mano.x, mano.y, mano.z], Z));
-
-  // Largo del monton: ell + |mano - Q(ell)| = L_total - largoFijo (biseccion, funcion creciente)
-  const objetivo = disp.L_total - largoFijo(disp, y);
   const pm = [mano.x, mano.y, mano.z];
-  const aux = nuevoPunto();
-  const g = (ell) => ell + distancia(pm, evaluarTrayecto(monton, ell, aux).p);
-  let lo = 0, hi = monton.L;
+  segmentos.push(recta([x, H_fijo, 0], pm, Z));
+
+  // Largo del monton: ell + largo de la curva(ell) = L_total - largoFijo (biseccion, funcion creciente)
+  const objetivo = disp.L_total - largoFijo(disp, y);
+  const g = (ell) => ell + largoPolilinea(puntosCurva(pm, cimaMonton(centroMonton, ell)));
+  let lo = 0, hi = disp.largoMontonMax + 1;
   for (let i = 0; i < 60; i++) {
     const mid = (lo + hi) / 2;
     if (g(mid) < objetivo) lo = mid; else hi = mid;
   }
   const largoMonton = (lo + hi) / 2;
-  const caida = evaluarTrayecto(monton, largoMonton, nuevoPunto()).p;
-  segmentos.push(recta(pm, caida, Z));
+  const curva = puntosCurva(pm, cimaMonton(centroMonton, largoMonton));
+  for (let i = 1; i < curva.length; i++) segmentos.push(recta(curva[i - 1], curva[i], Z));
 
   const principal = crearTrayecto(segmentos);
   return {
     principal,
     largoMonton,
-    monton,
+    centroMonton,
+    cima: curva[curva.length - 1],
     longitudTotal: principal.L + largoMonton,
-    tramoLibre: (H_fijo - mano.y) + distancia(pm, caida) + largoMonton,
+    tramoLibre: (H_fijo - mano.y) + largoPolilinea(curva) + largoMonton,
   };
 }
 
 // Punto material sigma (medido desde el amarre)
 export function puntoCadena(estado, sigma, out = nuevoPunto()) {
-  const { principal, largoMonton, monton } = estado;
+  const { principal, largoMonton, centroMonton } = estado;
   if (sigma <= principal.L) return evaluarTrayecto(principal, sigma, out);
-  // En el monton el trayecto se recorre al reves, desde la caida hasta el extremo final
-  evaluarTrayecto(monton, largoMonton - (sigma - principal.L), out);
-  out.t[0] = -out.t[0];
-  out.t[1] = -out.t[1];
-  out.t[2] = -out.t[2];
-  return out;
+  // Distancia al extremo final (fija para cada eslabon) e indice del eslabon
+  const reciente = sigma - principal.L;
+  const i = Math.floor(sigma / DIMENSIONES.paso);
+  return puntoMonton(centroMonton, largoMonton - reciente, reciente, i, out);
 }
 
 // Llama fn(i, punto) con el centro de cada eslabon (el punto se reutiliza)

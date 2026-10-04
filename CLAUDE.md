@@ -63,7 +63,7 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - `Escena.jsx` monta el `Canvas`; `Estudio` (ciclorama, luces, sombras), `Camaras` (CameraControls) y `Efectos` (postprocesado) son fijos, y el mecanismo se agrega como hijo.
 - Sombras con `shadows="percentage"` + `shadow-radius`: en three r186 `PCFSoftShadowMap` (lo que usa `shadows={true}`) ya no existe y avisa en consola.
 - El `EffectComposer` desactiva el tone mapping del renderer; por eso `Efectos.jsx` termina con `ToneMapping` (ACES) y `SMAA` (`multisampling={0}`).
-- Vistas de cámara en `src/componentes/escena/vistas.js`; `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar.
+- Vistas de cámara en `src/componentes/escena/vistas.js`; `setVista` incrementa `solicitudVista` para que repetir la misma vista vuelva a animar. Las vistas de poleas se calculan con `encuadreVista` (distancia según el ancho del bloque); "Poleas móviles" sigue al bloque desplazando en Δy el objetivo interno de camera-controls (`_target`/`_targetEnd`) en un `useFrame` de prioridad −2, lo que conserva el giro y el zoom del usuario.
 - `Text` de drei usa la fuente local `@fontsource/inter` (.woff; troika no lee .woff2) dentro de `Suspense`: sin ella, la carga de la fuente desde el CDN suspende toda la escena.
 
 ## Geometría del polipasto (`src/geometria/disposicion.js`)
@@ -71,7 +71,9 @@ npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
 - Funciones puras (sin three.js) con pruebas en `disposicion.test.js`. `crearDisposicion(sim.p)` se recalcula solo cuando cambia la simulación; los componentes de `escena/` solo la dibujan.
 - Poleas y ramales en el plano z = 0. La polea k une los ramales k y k+1 (separados 2·r_polea). Bloque móvil centrado en x = 0; su eje está en `alturaBloqueMovil(y) = H_movil0 + y` y el fijo en `H_fijo = H_movil0 + D0`.
 - La cadena usa una coordenada material σ medida desde el amarre: cada eslabón conserva su σ y su posición es el punto σ de la trayectoria para el y actual (`recorrerCadena`). Así los ramales avanzan con c_j·ydot sin integrar nada, también al adelantar o retroceder la reproducción.
-- La mano queda fija en `H_fijo - L1`; la cadena recogida (n·y) cae a un montón en el piso cuyo extremo final está fijo. El largo del montón se resuelve por bisección para conservar la longitud total exacta.
+- Tramo libre: vertical hasta la mano fija en `H_fijo - L1`, curva de Bézier hasta la cima del montón y montón cónico. El largo del montón se resuelve por bisección para conservar la longitud total exacta.
+- Montón: cada eslabón se ubica según su distancia λ al extremo final (fija) sobre el cono de tamaño λ (`conoMonton`), con ángulo, radio y giro pseudoaleatorios por índice (`aleatorio`, sin `Math.random`). Los eslabones recién caídos se deslizan desde la cima durante `monton.asentamiento`; después no se mueven.
+- `obtenerDisposicion(p)` cachea por objeto de parámetros: úsala en vez de `crearDisposicion` en componentes (la comparten `Polipasto` y `Camaras`).
 - Giro de poleas: `anguloPolea = giro·k·y/r_polea` (`giro` = +1 móvil, −1 fija).
 
 
