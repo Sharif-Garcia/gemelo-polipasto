@@ -228,7 +228,7 @@ en el tiempo y marcas de despegue, y máxima y aterrizaje. Estilo limpio y legib
 
 ## Fase 8. Validación con Simulink y exportación
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** demostrar que el gemelo coincide con Simulink.
 
