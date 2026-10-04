@@ -257,7 +257,7 @@ descargar el CSV del gemelo y botón para capturar la escena en PNG.
 
 ## Fase 7. Modo análisis
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** la vista técnica que conecta el 3D con la física de la memoria.
 
