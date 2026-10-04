@@ -56,7 +56,7 @@ const Fisica = (() => {
 
     return {
       M_t, m_p_eq, m_r_eff, M_eq, lambda, c,
-      N_poleas_moviles: Math.ceil(n / 2),
+      N_poleas_moviles: Math.floor(n / 2),   // poleas fijas: Math.ceil(n / 2)
       F_min: M_t * p.g / (n * (1 - p.mu)),
       a0: (n * p.F0 * (1 - p.mu) - M_t * p.g) / M_eq,
       y_tope: p.D0 - p.holgura
@@ -169,3 +169,5 @@ const Fisica = (() => {
   return { PARAMETROS_BASE, factoresRamales, derivados, fuerza,
            ecuaciones, simular, indice, aCSV };
 })();
+
+export { Fisica };

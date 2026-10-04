@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Gemelo digital del polipasto manual de cadena
 
 Proyecto de la asignatura Modelado y Simulación (Universidad Popular del Cesar, docente Andrés Perpiñán Reyes).
@@ -24,6 +28,29 @@ El resultado debe verse profesional: estilo "estudio limpio" (fondo claro, ilumi
 - Tailwind CSS v4 con `@tailwindcss/vite`
 - vitest (pruebas del motor físico)
 - Publicación en Vercel
+- Lint con oxlint (`.oxlintrc.json`: reglas de hooks de React)
+
+## Comandos
+
+```
+npm run dev        # servidor de desarrollo (Vite)
+npm run build      # build de producción
+npm run lint       # oxlint
+npm test           # vitest run (pruebas de validación del motor)
+npx vitest run src/fisica/fisica.test.js -t "M_eq"   # una sola prueba
+```
+
+## API del motor (`src/fisica/fisica.js`)
+
+`Fisica` es un IIFE que expone `{ PARAMETROS_BASE, factoresRamales, derivados, fuerza, ecuaciones, simular, indice, aCSV }`.
+
+- `Fisica.simular(cambios)` mezcla `cambios` con `PARAMETROS_BASE` (que además incluye `dt`, `tf`, `v_s = 0.01`, `holgura = 0.4`) y devuelve `{ p, d, r, Nt, eventos }`:
+  - `p`: parámetros usados; `d`: derivados (`M_t, m_p_eq, m_r_eff, M_eq, lambda, c, F_min, a0, y_tope, N_poleas_moviles`).
+  - `r`: series `Float64Array` de longitud `Nt` con las mismas columnas del CSV (`t, u, T, y, ydot, ydd, s, sdot, sdd, N`).
+  - `eventos`: `despegue, aterrizaje` (o `null`), `y_max/t_ymax, v_max/t_vmax, v_min/t_vmin`.
+- `Fisica.indice(sim, t)` convierte un tiempo de reproducción en índice de muestra; así se sincronizan escena, gráficas y panel (todos leen `sim.r[...][indice]`).
+- `Fisica.aCSV(sim)` genera el CSV con el formato de Simulink.
+
 
 ## Modelo físico (NO modificar sin pedirlo)
 
