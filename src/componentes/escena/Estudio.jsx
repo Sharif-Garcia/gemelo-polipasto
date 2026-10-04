@@ -49,14 +49,14 @@ export default function Estudio() {
       <color attach="background" args={[COLOR_ESTUDIO]} />
       <fog attach="fog" args={[COLOR_ESTUDIO, 16, 34]} />
 
-      <Environment preset="studio" environmentIntensity={0.8} />
-      <ambientLight intensity={0.15} />
+      <Environment preset="studio" environmentIntensity={0.35} />
+      <ambientLight intensity={0.08} />
       <directionalLight
-        position={[4, 8, 5]}
-        intensity={1.8}
+        position={[-4, 7, 3]}   // desde la izquierda: la sombra cae hacia la camara general
+        intensity={3.4}
         castShadow
         shadow-mapSize={[2048, 2048]}
-        shadow-radius={6}
+        shadow-radius={3}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
         shadow-camera-left={-5}
@@ -71,7 +71,15 @@ export default function Estudio() {
         <meshStandardMaterial color={COLOR_ESTUDIO} roughness={0.95} metalness={0} />
       </mesh>
 
-      <ContactShadows position={[0, 0.002, 0]} opacity={0.45} scale={8} blur={2.4} far={3} />
+      {/* Solo los objetos cercanos al piso (far) oscurecen el contacto */}
+      <ContactShadows
+        position={[0, 0.002, 0]}
+        opacity={0.75}
+        scale={8}
+        blur={1.2}
+        far={1.2}
+        resolution={1024}
+      />
     </>
   );
 }

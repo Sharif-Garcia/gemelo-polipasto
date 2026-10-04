@@ -77,7 +77,7 @@ escenario y los valores en vivo de t, y, ydot, ydd y u. Explícame la arquitectu
 
 ## Fase 2. Estudio 3D y cámara
 
-- [ ] Completada
+- [x] Completada
 
 **Objetivo:** el ambiente visual profesional donde vivirá el polipasto.
 
