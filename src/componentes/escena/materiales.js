@@ -21,6 +21,10 @@ export const MATERIALES = {
   articulacion: new MeshPhysicalMaterial({
     color: "#c7cbd0", roughness: 0.4, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.3,
   }),
+  // Casco de seguridad amarillo (plastico brillante)
+  casco: new MeshPhysicalMaterial({
+    color: "#f2b705", roughness: 0.35, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.25,
+  }),
   // Carga de acero pintada
   carga: new MeshStandardMaterial({ color: "#3a3f47", metalness: 0.55, roughness: 0.48 }),
 };
@@ -28,7 +32,7 @@ export const MATERIALES = {
 /* Modo analisis: portico, bloques y operario semitransparentes; cadena, gancho y
    carga opacos. La cadena pasa a un acabado mate claro para que se vean los
    colores de tension por ramal (los multiplica el color de cada instancia). */
-const TRANSPARENTES = { viga: 0.5, bloque: 0.62, polea: 0.62, eje: 0.62, hueco: 0.62, maniqui: 0.42, articulacion: 0.42 };
+const TRANSPARENTES = { viga: 0.5, bloque: 0.62, polea: 0.62, eje: 0.62, hueco: 0.62, maniqui: 0.42, articulacion: 0.42, casco: 0.42 };
 const CADENA_ESTUDIO = { color: MATERIALES.cadena.color.getHex(), metalness: MATERIALES.cadena.metalness, roughness: MATERIALES.cadena.roughness };
 
 export function aplicarModoMateriales(analisis) {

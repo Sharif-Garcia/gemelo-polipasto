@@ -116,6 +116,13 @@ export default function Operario() {
           <mesh material={MATERIALES.maniqui} position={[0, 0.115, 0.012]} scale={[0.085, 0.115, 0.1]} castShadow>
             <sphereGeometry args={[1, 32, 24]} />
           </mesh>
+          {/* Casco de seguridad: cupula y ala con visera al frente (+z) */}
+          <mesh material={MATERIALES.casco} position={[0, 0.125, 0.012]} scale={[0.1, 0.115, 0.116]} castShadow>
+            <sphereGeometry args={[1, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          </mesh>
+          <mesh material={MATERIALES.casco} position={[0, 0.127, 0.03]} scale={[0.112, 1, 0.134]} castShadow>
+            <cylinderGeometry args={[1, 1, 0.008, 40]} />
+          </mesh>
         </group>
       </group>
 

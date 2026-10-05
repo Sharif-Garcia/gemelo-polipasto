@@ -17,7 +17,7 @@ Las capturas de la escena se generaron con el botón **Capturar escena** (PNG de
 
 ## Qué incluye
 
-- **Escena 3D** en escala real: pórtico de perfil I, bloque fijo con ⌈n/2⌉ poleas, bloque móvil con ⌊n/2⌋ poleas, cadena de eslabones (InstancedMesh), gancho, carga y un maniquí que jala mano sobre mano.
+- **Escena 3D** en escala real: pórtico de perfil I, bloque fijo con ⌈n/2⌉ poleas, bloque móvil con ⌊n/2⌋ poleas, cadena de eslabones (InstancedMesh), gancho, carga y un maniquí con casco de seguridad que jala mano sobre mano.
 - **Modo estudio** (iluminación de estudio, sombras suaves, materiales metálicos) y **modo análisis**: diagrama de fuerzas con escala común, ramales coloreados por tensión, cotas de y, s y D0, y la ecuación de movimiento evaluada en cada instante.
 - **Gráficas** de y, ẏ, ÿ, u y T, s y N con cursor sincronizado, zoom y marcas de eventos.
 - **Parámetros** con slider y campo numérico; la simulación se recalcula al instante sin reiniciar.
